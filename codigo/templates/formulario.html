@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Atividade</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/formulario.css') }}">
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Cadastro de Atividade</h1>
+    <form action="/cadastrar_atividade" method="post">
+      <label for="materia">Matéria:</label>
+      <input type="text" id="materia" name="materia" required>
+
+      <label for="assunto">Assunto:</label>
+      <textarea id="assunto" name="assunto" required></textarea>
+
+      <label for="data_hora_realizacao">Data e Hora:</label>
+      <input type="datetime-local" id="data_hora_realizacao" name="data_hora_realizacao" required>
+
+      <label for="docente_id">ID do Docente:</label>
+      <input type="number" id="docente_id" name="docente_id" required>
+
+      <label for="tipo_atividade">Tipo de Atividade:</label>
+      <select id="tipo_atividade" name="tipo_atividade" required>
+        <option value="Prova Objetiva">Prova Objetiva</option>
+        <option value="Prova Discursiva">Prova Discursiva</option>
+        <option value="Prova Mista">Prova Mista</option>
+        <option value="Seminário">Seminário</option>
+        <option value="Lista de Atividades">Lista de Atividades</option>
+      </select>
+
+      <label for="forma_aplicacao">Forma de Aplicação:</label>
+      <select id="forma_aplicacao" name="forma_aplicacao" required>
+        <option value="Individual">Individual</option>
+        <option value="Em Dupla">Em Dupla</option>
+        <option value="Em Grupo">Em Grupo</option>
+      </select>
+
+      <label for="links_material">Links de Material:</label>
+      <textarea id="links_material" name="links_material"></textarea>
+
+      <label for="permite_consulta">
+        <input type="checkbox" id="permite_consulta" name="permite_consulta">
+        Permite Consulta
+      </label>
+
+      <label for="pontuacao">Pontuação:</label>
+      <input type="number" step="0.01" id="pontuacao" name="pontuacao">
+
+      <label for="local_prova">Local da Prova:</label>
+      <select id="local_prova" name="local_prova" required>
+        <option value="Sala de Aula">Sala de Aula</option>
+        <option value="Laboratório">Laboratório</option>
+        <option value="AVA">AVA</option>
+        <option value="Ginásio">Ginásio</option>
+      </select>
+
+      <label for="materiais_necessarios">Materiais Necessários:</label>
+      <textarea id="materiais_necessarios" name="materiais_necessarios"></textarea>
+
+      <label for="outros_materiais">Outros Materiais (opcional):</label>
+      <textarea id="outros_materiais" name="outros_materiais"></textarea>
+
+      <label for="avaliativa">
+        <input type="checkbox" id="avaliativa" name="avaliativa">
+        Avaliativa
+      </label>
+
+      <button type="submit">Salvar Atividade</button>
+    </form>
+  </div>
+
+</body>
+</html>
