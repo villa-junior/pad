@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS Notificacao (
     FOREIGN KEY (atividade_id) REFERENCES Atividade(id) ON DELETE CASCADE
 );
 
+INSERT INTO docente (nome, email) VALUES ("Jose", "xxxxxxx@gmail.com");
+select * from docente
 
 
 
