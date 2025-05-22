@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atividades Cadastradas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/atividades.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% if atividades %}
+            <h1>Atividades Cadastradas</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Matéria</th>
+                        <th>Assunto</th>
+                        <th>Data e Hora</th>
+                        <th>Local/Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for atividade in atividades %}
+                    <tr class="atividade-row">
+                        <td>{{ atividade.materia }}</td>
+                        <td>{{ atividade.assunto }}</td>
+                        <td>{{ atividade.data_hora_realizacao }}</td>
+                        <td>{{ atividade.local_prova }}</td>
+                    </tr>
+                    <tr class="detalhes-row">
+                        <td colspan="4">
+                            <div class="detalhes-content">
+                                <h3>Detalhes Completo da Atividade</h3>
+                                <div class="detalhes-grid">
+                                    <div>
+                                        <strong>Professor:</strong> {{ atividade.docente_id }}
+                                    </div>
+                                    <div>
+                                        <strong>Valor:</strong> {{ atividade.pontuacao }} pontos
+                                    </div>
+                                    <div>
+                                        <strong>Tipo de Atividade:</strong> {{ atividade.tipo_atividade }}
+                                    <div>
+                                        <strong>Materiais:</strong> {{ atividade.materiais_necessarios }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-data">
+                Nenhuma atividade cadastrada no momento.
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/atividades.js') }}"></script>
+</body>
+</html>
