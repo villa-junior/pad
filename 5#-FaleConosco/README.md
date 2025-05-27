@@ -27,8 +27,47 @@ Cada feedback é vinculado a um tópico específico. A aplicação autentica o u
 
 ## Instalação
 
-1. Clone o repositório:
+1. Crie e ative um ambiente virtual:
 
 ```bash
-git clone <URL-do-repositório>
-cd <nome-do-repositório>
+python -m venv venv
+source venv/bin/activate  # Linux/MacOS
+venv\Scripts\activate     # Windows
+```
+2. Instale as dependências:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Configure o banco de dados:
+
+Crie o arquivo do banco SQLite:
+
+```bash
+touch test.db  # Linux/MacOS
+type nul > test.db  # Windows
+```
+Execute o script de criação das tabelas:
+
+```bash
+sqlite3 test.db < model_reclamacoes.sql
+```
+Certifique-se de ter o SQLite instalado em sua máquina. Caso não tenha, consulte: https://www.sqlite.org/download.html
+
+
+### Como executar
+Execute o script principal para iniciar o processo de importação e tratamento dos dados:
+
+```bash
+python main.py
+```
+## A aplicação irá:
+
+- Conectar-se à API do SUAP com as credenciais informadas.
+
+- Coletar os dados necessários.
+
+- Processar e filtrar as informações.
+
+- Inserir os dados tratados no banco de dados.

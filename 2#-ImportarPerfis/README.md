@@ -26,31 +26,39 @@ Com esta automação, evita-se o trabalho manual e garante-se maior integridade,
 
 ## Instalação
 
-1. Clone o repositório:
-
-```bash
-git clone <URL-do-repositório>
-cd <nome-do-repositório>
-```
-Crie um ambiente virtual e ative:
+1. Crie um ambiente virtual e ative:
 
 ```bash
 python -m venv venv
 source venv/bin/activate  # Linux/MacOS
 venv\Scripts\activate     # Windows
 ```
-Instale as dependências:
+2. Instale as dependências:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Crie um arquivo .env na raiz do projeto com as credenciais de acesso ao SUAP:
+3. Crie um arquivo .env na raiz do projeto com as credenciais de acesso ao SUAP:
 
 ```env
 MATRICULA=seu_usuario_suap
 PASSWORD=sua_senha_suap
 ```
+4. Configure o banco de dados:
+
+Crie o arquivo do banco SQLite:
+
+```bash
+touch test.db  # Linux/MacOS
+type nul > test.db  # Windows
+```
+5. Execute o script de criação das tabelas:
+
+```bash
+sqlite3 test.db < model_importacoes.sql
+```
+Certifique-se de ter o SQLite instalado em sua máquina. Caso não tenha, consulte: https://www.sqlite.org/download.html
 
 ⚠️ Importante: Não compartilhe nem versiona este arquivo, pois ele contém informações sensíveis.
 
