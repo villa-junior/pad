@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Página Inicial</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <h1>PAD - Plataforma de Agendamento Discente</h1>
+    <div class="auth-links">
+        {% if g.user %}
+            <span>Olá, {{ g.user['nome'] }}</span>
+            <a href="{{ url_for('auth.logout') }}">Sair</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            <a href="{{ url_for('auth.register') }}">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+
+<main>
+    {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+    {% endfor %}
+    <h2>Fale Conosco</h2>
+    <nav>
+        <ul>
+            <li><a href="/reclamar">Fazer uma Reclamação</a></li>
+            <li><a href="/reclamacoes">Ver Reclamações</a></li>
+        </ul>
+    </nav>
+</main>
+
+</body>
+</html>
