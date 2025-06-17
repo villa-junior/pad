@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Cadastro de Atividade</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/formulario.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body>
 
-  <div class="container">
-    
-    <a href="{{ url_for('atividades') }}">Ver Atividades Cadastradas</a>
+  <header>
+    <h1>PAD - Cadastro de Atividade</h1>
+    <div class="auth-links">
+      <a href="{{ url_for('atividades') }}">Ver Atividades</a>
+    </div>
+  </header>
 
-    <h1>Cadastro de Atividade</h1>
+  <main>
     <form action="/cadastrar_atividade" method="post">
       <label for="materia">Matéria:</label>
       <input type="text" id="materia" name="materia" required>
@@ -22,9 +24,6 @@
 
       <label for="data_hora_realizacao">Data e Hora:</label>
       <input type="datetime-local" id="data_hora_realizacao" name="data_hora_realizacao" required>
-
-      <label for="docente_id">ID do Docente:</label>
-      <input type="number" id="docente_id" name="docente_id" required>
 
       <label for="tipo_atividade">Tipo de Atividade:</label>
       <select id="tipo_atividade" name="tipo_atividade" required>
@@ -74,7 +73,14 @@
 
       <button type="submit">Salvar Atividade</button>
     </form>
-  </div>
+  </main>
+
+  <footer>
+    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
+    <p>PAD - Plataforma de Atendimento Discente</p>
+    <p>Projeto produzido na disciplina PPA 2025</p>
+    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
+</footer>
 
 </body>
 </html>

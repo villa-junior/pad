@@ -1,11 +1,9 @@
-create database bancopad;
-USE bancopad;
-
--- Tabela para testes
-CREATE TABLE IF NOT EXISTS Docente (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL
+-- Tabela base: Usuario (por enquanto manter genérico)
+CREATE TABLE IF NOT EXISTS Usuario (
+    matricula VARCHAR(20) PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL
 );
 
 -- Provavelmente vai precisar de mudanças
@@ -14,7 +12,7 @@ CREATE TABLE IF NOT EXISTS Atividade (
     materia VARCHAR(255) NOT NULL,
     assunto TEXT NOT NULL,
     data_hora_realizacao DATETIME NOT NULL,
-    docente_id INT NOT NULL,
+    matricula VARCHAR(20) NOT NULL,
     tipo_atividade ENUM('Prova Objetiva', 'Prova Discursiva', 'Prova Mista', 'Seminário', 'Lista de Atividades') NOT NULL,
     data_hora_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     forma_aplicacao ENUM('Individual', 'Em Dupla', 'Em Grupo') NOT NULL,
@@ -25,9 +23,8 @@ CREATE TABLE IF NOT EXISTS Atividade (
     materiais_necessarios TEXT,
     outros_materiais TEXT NULL,
     avaliativa BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (docente_id) REFERENCES Docente(id) ON DELETE CASCADE
+    FOREIGN KEY (matricula) REFERENCES Usuario(matricula) ON DELETE CASCADE
 );
-
 
 -- Falta implementar
 CREATE TABLE IF NOT EXISTS Notificacao (
@@ -37,11 +34,12 @@ CREATE TABLE IF NOT EXISTS Notificacao (
     data_hora_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (atividade_id) REFERENCES Atividade(id) ON DELETE CASCADE
 );
-
-INSERT INTO docente (nome, email) VALUES ("Jose", "xxxxxxx@gmail.com");
-select * from docente
-
-
-
-
-
+-- Tabela Reclamacao
+CREATE TABLE IF NOT EXISTS Reclamacao (
+    id_reclamacao INT AUTO_INCREMENT PRIMARY KEY,   
+    matricula VARCHAR(20) NOT NULL,
+    topico ENUM('Calendário', 'Cadastro de Perfil', 'Cadastro de Atividades', 'Avaliações','Outros') NOT NULL,
+    descricao TEXT NOT NULL,
+    data_reclamacao DATETIME NOT NULL,
+    FOREIGN KEY (matricula) REFERENCES Usuario(matricula)
+);
