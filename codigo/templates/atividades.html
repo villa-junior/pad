@@ -4,63 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atividades Cadastradas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/atividades.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
 
-        <a href="{{url_for('formulario')}}">Cadastrar</a>
-        
+    <header>
+        <h1>PAD - Atividades</h1>
+        <div class="auth-links">
+            <a href="{{ url_for('formulario') }}">Cadastrar Nova</a>
+        </div>
+    </header>
+
+    <main>
         {% if atividades %}
-            <h1>Atividades Cadastradas</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Matéria</th>
-                        <th>Assunto</th>
-                        <th>Data e Hora</th>
-                        <th>Local/Tipo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for atividade in atividades %}
-                    <tr class="atividade-row">
-                        <td>{{ atividade.materia }}</td>
-                        <td>{{ atividade.assunto }}</td>
-                        <td>{{ atividade.data_hora_realizacao }}</td>
-                        <td>{{ atividade.local_prova }}</td>
-                    </tr>
-                    <tr class="detalhes-row">
-                        <td colspan="4">
-                            <div class="detalhes-content">
-                                <h3>Detalhes Completo da Atividade</h3>
-                                <div class="detalhes-grid">
-                                    <div>
-                                        <strong>Professor:</strong> {{ atividade.docente_id }}
-                                    </div>
-                                    <div>
-                                        <strong>Valor:</strong> {{ atividade.pontuacao }} pontos
-                                    </div>
-                                    <div>
-                                        <strong>Tipo de Atividade:</strong> {{ atividade.tipo_atividade }}
-                                    <div>
-                                        <strong>Materiais:</strong> {{ atividade.materiais_necessarios }}
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="no-data">
-                Nenhuma atividade cadastrada no momento.
+            <h2>Atividades Cadastradas</h2>
+            <div class="reclamacoes">
+                {% for atividade in atividades %}
+                <div class="reclamacao">
+                    <p><strong>Matéria:</strong> {{ atividade.materia }}</p>
+                    <p><strong>Assunto:</strong> {{ atividade.assunto }}</p>
+                    <p><strong>Data e Hora:</strong> {{ atividade.data_hora_realizacao }}</p>
+                    <p><strong>Local:</strong> {{ atividade.local_prova }}</p>
+                    <details>
+                        <summary><strong>Ver detalhes</strong></summary>
+                        <div>
+                            <p><strong>Professor:</strong> {{ atividade.docente_id }}</p>
+                            <p><strong>Pontuação:</strong> {{ atividade.pontuacao }} pontos</p>
+                            <p><strong>Tipo de Atividade:</strong> {{ atividade.tipo_atividade }}</p>
+                            <p><strong>Materiais:</strong> {{ atividade.materiais_necessarios }}</p>
+                        </div>
+                    </details>
+                </div>
+                {% endfor %}
             </div>
+        {% else %}
+            <p class="flash">Nenhuma atividade cadastrada no momento.</p>
         {% endif %}
-    </div>
+    </main>
 
+    <footer>
+        <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
+        <p>PAD - Plataforma de Atendimento Discente</p>
+        <p>Projeto produzido na disciplina PPA 2025</p>
+        <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
+    </footer>
+    
     <script src="{{ url_for('static', filename='js/atividades.js') }}"></script>
 </body>
 </html>
