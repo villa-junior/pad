@@ -3,6 +3,9 @@ from database import engine,SessionLocal
 
 metadata = MetaData()
 atividades = Table('Atividade', metadata, autoload_with=engine)
+# acredito que seria mais coerente com o uso do sqlalchemy ter um models.py
+# com classes que utilizam apenas ORM para interagir com a db. Até para poder 
+# reduzir a possibilidade de sqlInjection
 
 # uma boa prática seria criar um Enum para tipo_atividade, forma_aplicacao, local_prova etc.
 def insert_atividade(materia, assunto, data_hora_realizacao, matricula, tipo_atividade, forma_aplicacao,
@@ -30,7 +33,7 @@ def insert_atividade(materia, assunto, data_hora_realizacao, matricula, tipo_ati
         return "Atividade cadastrada com sucesso"
     except Exception as e:
         session.rollback()
-        raise Exception(f"Erro ao cadastrar atividade: {e}")
+        raise Exception(f"Erro ao cadastrar atividade: {e}") # exceção para ser capturada na main
     finally:
         session.close()
 

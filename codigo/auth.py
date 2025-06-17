@@ -4,13 +4,15 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import create_engine, Table, text, MetaData,insert
+from sqlalchemy import Table, text, MetaData,insert
 
 from database import SessionLocal,engine
 
 metadata = MetaData()
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 usuarios_table = Table('Usuario', metadata, autoload_with=engine)
+# acredito que seria mais coerente com o uso do sqlalchemy ter um models.py
+# com classes que utilizam apenas ORM para interagir com a db
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -32,13 +34,13 @@ def register():
             error = 'Senha necessária.'
 
         if error is None:
-            session_db = SessionLocal()
+            session_db = SessionLocal() # abordagem com session é a mais comum
             try:
                 stmt = insert(usuarios_table).values(
                     matricula=matricula,
                     nome=nome,
                     email=email,
-                    senha=generate_password_hash(senha)
+                    senha=generate_password_hash(senha) # criptografia básica
                 )
                 session_db.execute(stmt)
                 session_db.commit()
@@ -91,7 +93,7 @@ def login():
 
     return render_template('auth/login.html')
 
-
+# o session do flask é utilizado para acessar o "localStorage" a
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -115,12 +117,15 @@ def load_logged_in_user():
 
 @bp.route('/logout')
 def logout():
-    session.clear()
+    session.clear() # limpa a sessão e os cookies carregados
     return redirect(url_for('home'))
 
 
-def login_required(view):
-    @functools.wraps(view)
+def login_required(view): # função que funciona como decorator (podendo modificar o comportamento de outras funções)
+    @functools.wraps(view)  
+    # neste caso, ele funciona recebendo alguma função (como o de acesso a algum componente do site), 
+    # verificando se existe algum usuário logado na sessão e retornando para a página de login (caso não haja algum usuario)
+    # ou seguindo com o funcionamento da função normalmente
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))

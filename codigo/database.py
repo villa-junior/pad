@@ -10,7 +10,7 @@ load_dotenv()
 # das tabelas sem a necessidade de .sql
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-# DATABASE_URL=mysql+pymysql://root:<senha_super_díficil>@78.142.242.83:3306/bancopad
+# adicionar um .env DATABASE_URL=mysql+pymysql://root:<senha_super_díficil>@78.142.242.83:3306/bancopad
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

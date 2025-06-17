@@ -20,6 +20,8 @@ def home():
     #print(session) 
     return render_template("home.html")
 
+# no futuro seria ideal implementar um função genérica para tratar todas requisições e
+# implementando o tratamento de erros correto com a HTTPException (404,403,500 etc.)
 
 # acho que seria legal unir esses dois endpoints, afinal "formulario" é muito genérico
 @app.route("/formulario")
@@ -45,7 +47,7 @@ def cadastrar_atividade():
         avaliativa = bool(request.form.get('avaliativa'))
 
         error = None
-        if error is not None:
+        if error is not None: # captura erros do backend e adiciona na interface
             flash(error)
 
         # Verificação básica de campos obrigatórios
@@ -83,32 +85,32 @@ def atividades():
 @app.route("/reclamar", methods=('GET', 'POST'))
 @login_required
 def post_reclamacoes_endpoint():
-    if request.method == 'POST':
+    if request.method == 'POST': # substituir pelo uso do FlaskWTF
         topico = request.form.get("topico")
         descricao = request.form.get("descricao")
 
         error = None
 
-        if not g.user:
+        if not g.user: # g é uma variavel global do Flask, uma das muitas esquisitices desse framework
             error = 'Log in não realizado'
-        elif not topico:
+        elif not topico:# captura erros do backend e adiciona na interface
             error = 'Tópico é obrigatório.'
         elif not descricao:
             error = 'Descrição é obrigatória.'
 
-        if error is not None:
+        if error is not None: # captura erros do backend e adiciona na interface
             flash(error)
         else:
             try:
-                insert_reclamacao(
-                    matricula=g.user["matricula"],
+                insert_reclamacao( # usar o type hint do python é bem útil nessas situações
+                    matricula=g.user["matricula"], 
                     topico=topico,
                     descricao=descricao
                 )
                 flash("Reclamação enviada com sucesso.")
                 return redirect(url_for("home"))  # ou outra rota após sucesso
             except Exception as e:
-                flash(f"Erro ao enviar reclamação: {str(e)}")
+                error = f"Erro ao enviar reclamação: {str(e)}" # adiciona a exceção na variavel
 
     return render_template("form_reclamar.html")
 
