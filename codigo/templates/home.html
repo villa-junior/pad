@@ -13,6 +13,7 @@
         {% if g.user %}
             <span>Olá, {{ g.user['nome'] }}</span>
             <a href="{{ url_for('auth.logout') }}">Sair</a>
+            <a href="{{url_for('auth.change_password')}}">Trocar senha</a>
         {% else %}
             <a href="{{ url_for('auth.login') }}">Login</a>
             <a href="{{ url_for('auth.register') }}">Sign In</a>

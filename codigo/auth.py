@@ -93,6 +93,63 @@ def login():
 
     return render_template('auth/login.html')
 
+
+#def Alterar senha
+@bp.route('/change_password', methods=('GET', 'POST'))
+def change_password():
+    if request.method == 'POST':
+        matricula = session.get('matricula')
+        senha_atual = request.form.get('current_password')
+        nova_senha = request.form.get('new_password')
+        confirmar_senha = request.form.get('confirm_password')
+
+        if not all([matricula, senha_atual, nova_senha, confirmar_senha]):
+            flash("Preencha todos os campos.")
+            return redirect(url_for('auth.change_password'))
+
+        if nova_senha != confirmar_senha:
+            flash("As senhas novas não conferem.")
+            return redirect(url_for('auth.change_password'))
+
+        session_db = None  
+        try:
+            session_db = SessionLocal()  
+
+           
+            result = session_db.execute(
+                text("SELECT * FROM Usuario WHERE matricula = :matricula"),
+                {'matricula': matricula}
+            )
+            user = result.mappings().first()
+
+            if user is None:
+                flash("Usuário não encontrado.")
+                return redirect(url_for('auth.login'))
+
+            if not check_password_hash(user['senha'], senha_atual):
+                flash("Senha atual incorreta.")
+                return redirect(url_for('auth.change_password'))
+
+            hashed_new_password = generate_password_hash(nova_senha)
+            session_db.execute(
+                text("UPDATE Usuario SET senha = :senha WHERE matricula = :matricula"),
+                {'senha': hashed_new_password, 'matricula': matricula}
+            )
+            session_db.commit()
+            flash("Senha alterada com sucesso!")
+            return redirect(url_for('home'))
+
+        except Exception as e:
+            flash(f"Erro ao alterar senha: {str(e)}")
+            return redirect(url_for('auth.change_password'))
+
+        finally:
+            if session_db:  
+                session_db.close()
+
+    # Se for GET (ou não POST), renderiza o template
+    return render_template('auth/change_password.html')  
+   
 # o session do flask é utilizado para acessar o "localStorage" a
 
 @bp.before_app_request
