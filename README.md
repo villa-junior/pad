@@ -77,6 +77,5 @@ python atividadespad.py
 
 ## Observações
 
-- A interface ainda não está estilizada (sem CSS).
 - O banco de dados precisa conter ao menos um docente registrado para que a página funcione corretamente.
 - Alguns campos e validações estão em desenvolvimento.
