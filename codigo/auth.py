@@ -144,6 +144,7 @@ def change_password():
             return redirect(url_for('auth.change_password'))
 
         finally:
+            session.clear()
             if session_db:  
                 session_db.close()
 
