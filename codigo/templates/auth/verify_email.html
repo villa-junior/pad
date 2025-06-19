@@ -2,15 +2,15 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Verificação de Email</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
 <header>
-    <h1>PAD - Login</h1>
+    <h1>PAD - Verificação de Email</h1>
     <div class="auth-links">
-        <a href="/auth/login">Log in</a>
+        <a href="/auth/login">Login</a>
         <a href="/auth/register">Sign In</a>
     </div>
 </header>
@@ -19,16 +19,14 @@
     {% for message in get_flashed_messages() %}
         <div class="flash">{{ message }}</div>
     {% endfor %}
-    <h2>Log in</h2>
-    <form action="{{ url_for('auth.login') }}" method="post">
-        <input type="text" name="matricula" placeholder="Matrícula" required><br>
-        <input type="password" name="senha" placeholder="Senha" required><br>
-        <button type="submit">Login</button>
-    </form>    
-    <div class="form-link">
-        <a href="{{ url_for('auth.recover_password') }}">Esqueceu a senha?</a>
-    </div>
-        
+
+    <h2>Verificação de E-mail</h2>
+    <p>Um código foi enviado para: <strong>{{ email }}</strong></p>
+    
+    <form method="post">
+        <input type="text" name="codigo" placeholder="Código de 6 dígitos" maxlength="6" required>
+        <button type="submit">Verificar</button>
+    </form>
 </main>
 
 <footer>

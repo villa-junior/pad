@@ -14,7 +14,6 @@ app.config.from_mapping(
         SECRET_KEY='dev' # usada na criptografação do cookies (dados de login)
 )
 app.register_blueprint(bp) # adição das urls para autenticação
-
 @app.route("/")
 def home():
     #print(session) 
