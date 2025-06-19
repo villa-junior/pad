@@ -41,6 +41,21 @@ header h1 {
     text-decoration: underline;
 }
 
+.form-link {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.form-link a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.form-link a:hover {
+    text-decoration: underline;
+}
+
 main {
     padding: 40px;
     min-width: 800px;

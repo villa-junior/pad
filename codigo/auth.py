@@ -110,6 +110,9 @@ def change_password():
         if nova_senha != confirmar_senha:
             flash("As senhas novas não conferem.")
             return redirect(url_for('auth.change_password'))
+        if nova_senha == senha_atual:
+            flash("A nova senha não pode ser igual a anterior ")
+            return redirect(url_for('auth.change_password'))
 
         session_db = None  
         try:
@@ -149,9 +152,42 @@ def change_password():
             if session_db:  
                 session_db.close()
 
-    # Se for GET (ou não POST), renderiza o template
+    
     return render_template('auth/change_password.html')  
-   
+
+#def recuperar senha
+@bp.route('/recover_password', methods = ['GET','POST'])
+def recover_password():
+    if request.method == 'POST':
+        email = request.form.get('email')  
+
+        session_db = None
+        try:
+            session_db = SessionLocal()  
+
+            result = session_db.execute(
+                text("SELECT * FROM Usuario WHERE email = :email"),
+                {'email': email}
+            )
+            user = result.mappings().first()
+
+            if user is None:
+                flash("Não existe nenhum usuário com este e-mail.")
+                return redirect(url_for('auth.recover_password'))
+
+        except Exception as e:
+            flash(f"Erro ao tentar recuperar conta: {str(e)}")
+            return redirect(url_for('auth.recover_password'))
+
+        finally:
+            if session_db:
+                session_db.close()
+
+    
+    return render_template('auth/recover_password.html')
+            
+
+
 # o session do flask é utilizado para acessar o "localStorage" a
 
 @bp.before_app_request
