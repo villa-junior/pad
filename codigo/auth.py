@@ -6,7 +6,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Table, text, MetaData,insert
 
+import smtplib # Permitir enviar emails por SMTP
+from email.mime.text import MIMEText
+
 from database import SessionLocal,engine
+
+import os
+from dotenv import load_dotenv
 
 metadata = MetaData()
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -78,7 +84,7 @@ def login():
                 error = 'Matrícula não encontrada.'
             elif not check_password_hash(user['senha'], senha):
                 error = 'Senha incorreta.'
-
+            
             if error is None:
                 session.clear()  # session do Flask
                 session['matricula'] = user['matricula']
@@ -92,6 +98,121 @@ def login():
         flash(error)
 
     return render_template('auth/login.html')
+
+
+#def Alterar senha
+@bp.route('/change_password', methods=('GET', 'POST'))
+def change_password():
+    if request.method == 'POST':
+        matricula = session.get('matricula')
+        senha_atual = request.form.get('current_password')
+        nova_senha = request.form.get('new_password')
+        confirmar_senha = request.form.get('confirm_password')
+
+        if not all([matricula, senha_atual, nova_senha, confirmar_senha]):
+            flash("Preencha todos os campos.")
+            return redirect(url_for('auth.change_password'))
+
+        if nova_senha != confirmar_senha:
+            flash("As senhas novas não conferem.")
+            return redirect(url_for('auth.change_password'))
+        if nova_senha == senha_atual:
+            flash("A nova senha não pode ser igual a anterior ")
+            return redirect(url_for('auth.change_password'))
+
+        session_db = None  
+        try:
+            session_db = SessionLocal()  
+
+           
+            result = session_db.execute(
+                text("SELECT * FROM Usuario WHERE matricula = :matricula"),
+                {'matricula': matricula}
+            )
+            user = result.mappings().first()
+
+            if user is None:
+                flash("Usuário não encontrado.")
+                return redirect(url_for('auth.login'))
+
+            if not check_password_hash(user['senha'], senha_atual):
+                flash("Senha atual incorreta.")
+                return redirect(url_for('auth.change_password'))
+
+            hashed_new_password = generate_password_hash(nova_senha)
+            session_db.execute(
+                text("UPDATE Usuario SET senha = :senha WHERE matricula = :matricula"),
+                {'senha': hashed_new_password, 'matricula': matricula}
+            )
+            session_db.commit()
+            session.clear()
+            flash("Senha alterada com sucesso.")
+            return redirect(url_for('auth.login'))
+          
+
+        except Exception as e:
+            flash(f"Erro ao alterar senha: {str(e)}")
+            return redirect(url_for('auth.change_password'))
+
+        finally:
+            if session_db:  
+                session_db.close()
+
+    
+    return render_template('auth/change_password.html')  
+
+#def recuperar senha
+#def recuperar senha
+@bp.route('/recover_password', methods = ['GET','POST'])
+def recover_password():
+
+    EMAIL = os.getenv("EMAIL")
+    SENHA_APP = os.getenv("SENHA_APP")
+    if request.method == 'POST':
+        email = request.form.get('email')  
+
+        session_db = None
+        try:
+            session_db = SessionLocal()  
+
+            result = session_db.execute(
+                text("SELECT * FROM Usuario WHERE email = :email"),
+                {'email': email}
+            )
+            user = result.mappings().first()
+
+            if user is None:
+                flash("Não existe nenhum usuário com este e-mail.")
+                return redirect(url_for('auth.recover_password'))
+            
+            message = MIMEText(f'Email para recuperar a senha.' \
+            'Acesse o link abaixo:' \
+            'aaaa')
+            message['From'] = EMAIL
+            message['To'] = email
+            message['Subject'] = 'Recuperação de conta'
+
+            mail_server = smtplib.SMTP('smtp.gmail.com',587)
+            mail_server.starttls()
+            mail_server.login(EMAIL, SENHA_APP)
+            mail_server.send_message(message)
+            mail_server.quit()
+            flash('Email enviado! Esperando a confirmação')
+
+
+        except Exception as e:
+            flash(f"Erro ao tentar recuperar conta: {str(e)}")
+            return redirect(url_for('auth.recover_password'))
+
+        finally:
+            if session_db:
+                session_db.close()
+
+    
+    return render_template('auth/recover_password.html')
+            
+            
+
 
 # o session do flask é utilizado para acessar o "localStorage" a
 
