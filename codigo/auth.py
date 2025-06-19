@@ -1,4 +1,5 @@
 import functools
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
@@ -6,7 +7,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Table, text, MetaData,insert
 
+import smtplib # Permitir enviar emails por SMTP
+from email.mime.text import MIMEText
+
 from database import SessionLocal,engine
+
+import os
+from dotenv import load_dotenv
 
 metadata = MetaData()
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -156,8 +163,12 @@ def change_password():
     return render_template('auth/change_password.html')  
 
 #def recuperar senha
+#def recuperar senha
 @bp.route('/recover_password', methods = ['GET','POST'])
 def recover_password():
+
+    EMAIL = os.getenv("EMAIL")
+    SENHA_APP = os.getenv("SENHA_APP")
     if request.method == 'POST':
         email = request.form.get('email')  
 
@@ -174,6 +185,21 @@ def recover_password():
             if user is None:
                 flash("Não existe nenhum usuário com este e-mail.")
                 return redirect(url_for('auth.recover_password'))
+            
+            message = MIMEText(f'Email para recuperar a senha.' \
+            'Acesse o link abaixo:' \
+            'aaaa')
+            message['From'] = EMAIL
+            message['To'] = email
+            message['Subject'] = 'Recuperação de conta'
+
+            mail_server = smtplib.SMTP('smtp.gmail.com',587)
+            mail_server.starttls()
+            mail_server.login(EMAIL, SENHA_APP)
+            mail_server.send_message(message)
+            mail_server.quit()
+            flash('Email enviado! Esperando a confirmação')
+
 
         except Exception as e:
             flash(f"Erro ao tentar recuperar conta: {str(e)}")
@@ -185,6 +211,7 @@ def recover_password():
 
     
     return render_template('auth/recover_password.html')
+            
             
 
 
