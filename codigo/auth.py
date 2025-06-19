@@ -78,7 +78,7 @@ def login():
                 error = 'Matrícula não encontrada.'
             elif not check_password_hash(user['senha'], senha):
                 error = 'Senha incorreta.'
-
+            
             if error is None:
                 session.clear()  # session do Flask
                 session['matricula'] = user['matricula']
@@ -136,15 +136,16 @@ def change_password():
                 {'senha': hashed_new_password, 'matricula': matricula}
             )
             session_db.commit()
-            flash("Senha alterada com sucesso!")
-            return redirect(url_for('home'))
+            session.clear()
+            flash("Senha alterada com sucesso.")
+            return redirect(url_for('auth.login'))
+          
 
         except Exception as e:
             flash(f"Erro ao alterar senha: {str(e)}")
             return redirect(url_for('auth.change_password'))
 
         finally:
-            session.clear()
             if session_db:  
                 session_db.close()
 
