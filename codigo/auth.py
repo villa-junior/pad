@@ -187,43 +187,55 @@ from utils import gerar_cod_verificacao,enviar_email
 
 @bp.route('/verificar_email', methods=['GET', 'POST'])
 def verificar_email_endpoint():
-    if 'registro_temp' not in session:
-        flash("Sessão expirada ou acesso inválido.")
-        return redirect(url_for('auth.register'))
 
-    email = session['registro_temp']['email']
+    contexto = None
+
+    if 'registro_temp' in session:
+        email = session['registro_temp']['email']
+        contexto = 'cadastro'
+    elif 'recuperacao_senha' in session:
+        email = session['recuperacao_senha']
+        contexto = 'recuperacao'
+    else:
+        flash("Sessão expirada ou acesso inválido.")
+        return redirect(url_for('auth.login'))
 
     if request.method == 'POST':
         codigo = request.form.get("codigo")
         codigo_esperado = session.get('codigo_verificacao')
-
+    
         if codigo == codigo_esperado:
-            try:
-                session_db = SessionLocal()
-                stmt = insert(usuarios_table).values(
-                    matricula=session['registro_temp']['matricula'],
-                    nome=session['registro_temp']['nome'],
-                    email=session['registro_temp']['email'],
-                    senha=session['registro_temp']['senha']
-                )
-                session_db.execute(stmt)
-                session_db.commit()
-                flash("Usuário registrado com sucesso!")
-                session.pop('registro_temp', None)
-                session.pop('codigo_verificacao', None)
-                return redirect(url_for('auth.login'))
+            if contexto == 'cadastro':
+                try:
+                    session_db = SessionLocal()
+                    stmt = insert(usuarios_table).values(
+                        matricula=session['registro_temp']['matricula'],
+                        nome=session['registro_temp']['nome'],
+                        email=session['registro_temp']['email'],
+                        senha=session['registro_temp']['senha']
+                    )
+                    session_db.execute(stmt)
+                    session_db.commit()
+                    flash("Usuário registrado com sucesso!")
+                    session.pop('registro_temp', None)
+                    session.pop('codigo_verificacao', None)
+                    return redirect(url_for('auth.login'))
 
-            except IntegrityError:
-                session_db.rollback()
-                flash("Matrícula ou email já registrados.")
-            finally:
-                session_db.close()
+                except IntegrityError:
+                    session_db.rollback()
+                    flash("Matrícula ou email já registrados.")
+                finally:
+                    session_db.close()
+            elif contexto == 'recuperacao':
+                flash("Código verificado com sucesso. Redefina sua senha.")
+                session.pop('codigo_verificacao', None)
+                # redireciona para página de redefinição
+                return redirect(url_for('auth.reset_password'))
         else:
             flash("Código incorreto!")
 
     return render_template("auth/verify_email.html", email=email)
 
-#def recuperar senha
 #def recuperar senha
 @bp.route('/recover_password', methods = ['GET','POST'])
 def recover_password():
@@ -247,35 +259,65 @@ def recover_password():
                 flash("Não existe nenhum usuário com este e-mail.")
                 return redirect(url_for('auth.recover_password'))
             
-            message = MIMEText(f'Email para recuperar a senha.' \
-            'Acesse o link abaixo:' \
-            'aaaa')
-            message['From'] = EMAIL
-            message['To'] = email
-            message['Subject'] = 'Recuperação de conta'
-
-            mail_server = smtplib.SMTP('smtp.gmail.com',587)
-            mail_server.starttls()
-            mail_server.login(EMAIL, SENHA_APP)
-            mail_server.send_message(message)
-            mail_server.quit()
-            flash('Email enviado! Esperando a confirmação')
-
+            codigo_gerado = gerar_cod_verificacao()
+            enviar_email(codigo=codigo_gerado, destinatario=email, subject="Verificação de Email")
+        
+            session['codigo_verificacao'] = codigo_gerado
+            session['recuperacao_senha'] = email
+            return redirect(url_for("auth.verificar_email_endpoint"))
 
         except Exception as e:
             flash(f"Erro ao tentar recuperar conta: {str(e)}")
             return redirect(url_for('auth.recover_password'))
-
-        finally:
-            if session_db:
-                session_db.close()
+             
 
     
     return render_template('auth/recover_password.html')
             
             
+#def reset_password
+@bp.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    email = session['recuperacao_senha']
+    
+    if 'recuperacao_senha' not in session:
+        flash("Sessão expirada ou inválida.")
+        return redirect(url_for('auth.login'))
 
+   
+    if request.method == 'POST':
+        nova_senha = request.form.get('nova_senha')
+        confirmar = request.form.get('confirmar_senha')
 
+        
+        if nova_senha != confirmar:
+            flash("As senhas não coincidem.")
+            return redirect(url_for('auth.reset_password'))
+
+        try:
+            session_db = SessionLocal()
+            hashed_new_password = generate_password_hash(nova_senha)
+            session_db.execute(
+                text("UPDATE Usuario SET senha = :senha WHERE email = :email"),
+                {'senha': hashed_new_password, 'email': email}
+            )
+            session_db.commit()
+            session.clear()
+            flash("Senha alterada com sucesso.")
+            return redirect(url_for('auth.login'))
+
+        except Exception as e:
+            session_db.rollback()
+            flash(f"Erro ao atualizar senha: {e}")
+
+        finally:
+            session_db.close()
+
+       
+        return redirect(url_for('auth.reset_password'))
+
+    
+    return render_template("auth/reset_password.html")
 # o session do flask é utilizado para acessar o "localStorage" a
 
 @bp.before_app_request
