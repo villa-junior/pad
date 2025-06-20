@@ -27,16 +27,16 @@ def insert_atividade(
             assunto=assunto,
             data_hora_realizacao=data_hora_realizacao,
             matricula=matricula,
-            tipo_atividade=tipo_atividade,
-            forma_aplicacao=forma_aplicacao,
+            tipo_atividade=tipo_atividade.value,
+            forma_aplicacao=forma_aplicacao.value,
             links_material=links_material,
             permite_consulta=permite_consulta,
             pontuacao=pontuacao,
-            local_prova=local_prova,
+            local_prova=local_prova.value,
             materiais_necessarios=materiais_necessarios,
             outros_materiais=outros_materiais,
             avaliativa=avaliativa,
-            turma=turma
+            turma=turma.value
         )
         
         session.add(nova_atividade)
@@ -44,6 +44,7 @@ def insert_atividade(
         session.commit()
         return "Atividade cadastrada com sucesso"
     except SQLAlchemyError as e:
+        print(f"Erro ao cadastrar atividade: {str(e)}")
         session.rollback()
         raise Exception(f"Erro ao cadastrar atividade: {str(e)}")
     finally:
