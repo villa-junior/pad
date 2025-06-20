@@ -1,4 +1,4 @@
-from atividadespad import insert_atividade, get_atividades, delete_atividade
+from atividadespad import insert_atividade, get_atividades, delete_atividade, verificar_atividade
 from flask import Flask,render_template,url_for,session,request,redirect,flash,g, jsonify
 from faleConosco import insert_reclamacao,get_reclamacao
 from database import close_db
@@ -86,6 +86,11 @@ def atividades():
 @login_required
 def excluir_atividade(id):
     try:
+        if not g.user:
+            return jsonify({"error": "Usuário não autenticado."}), 401
+        if verificar_atividade(id) != g.user["matricula"]:
+            return jsonify({"error": "Você não tem permissão para excluir esta atividade."}), 403
+        
         delete_atividade(id)
         return jsonify({"message": "Atividade excluída com sucesso."}), 200
     except Exception as e:

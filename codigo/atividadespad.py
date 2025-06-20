@@ -44,7 +44,6 @@ def insert_atividade(
         session.commit()
         return "Atividade cadastrada com sucesso"
     except SQLAlchemyError as e:
-        print(f"Erro ao cadastrar atividade: {str(e)}")
         session.rollback()
         raise Exception(f"Erro ao cadastrar atividade: {str(e)}")
     finally:
@@ -58,6 +57,19 @@ def get_atividades():
         return result.mappings().all()
     except Exception as e:
         raise Exception(f"Erro ao buscar atividades: {e}")
+    finally:
+        session.close()
+
+def verificar_atividade(id: int):
+    session = SessionLocal()
+    try:
+        atividade = session.execute(text("SELECT matricula FROM Atividade WHERE id = :id"), {'id': id}).fetchone()
+        matricula = atividade[0]
+        if not atividade:
+            raise Exception("Atividade não encontrada")
+        return matricula
+    except SQLAlchemyError as e:
+        raise Exception(f"Erro ao verificar atividade: {str(e)}")
     finally:
         session.close()
 
