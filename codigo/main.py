@@ -1,5 +1,5 @@
-from atividadespad import insert_atividade, get_atividades
-from flask import Flask,render_template,url_for,session,request,redirect,flash,g
+from atividadespad import insert_atividade, get_atividades, delete_atividade
+from flask import Flask,render_template,url_for,session,request,redirect,flash,g, jsonify
 from faleConosco import insert_reclamacao,get_reclamacao
 from database import close_db
 from models import Turma, TipoAtividade, FormaAplicacao, LocalProva
@@ -81,6 +81,15 @@ def atividades():
         flash(f"Erro ao buscar atividades: {str(e)}")
         atividades = []
     return render_template("atividades.html", atividades=atividades)
+
+@app.route('/atividades/<int:id>', methods=['DELETE'])
+@login_required
+def excluir_atividade(id):
+    try:
+        delete_atividade(id)
+        return jsonify({"message": "Atividade excluída com sucesso."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/reclamar", methods=('GET', 'POST'))
 @login_required

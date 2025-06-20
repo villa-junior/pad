@@ -143,3 +143,32 @@ footer a {
 footer a:hover {
     text-decoration: underline;
 }
+
+.atividade-row {
+    position: relative;
+    background: #fafafa;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.detalhes-row {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.btn-excluir {
+    display:none; 
+    position:absolute; 
+    right:10px; 
+    top:10px; 
+    background:#e74c3c; 
+    color:#fff; 
+    border:none; 
+    padding:5px 10px; 
+    border-radius:3px; 
+    cursor:pointer;
+}

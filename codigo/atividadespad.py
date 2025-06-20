@@ -59,3 +59,14 @@ def get_atividades():
         raise Exception(f"Erro ao buscar atividades: {e}")
     finally:
         session.close()
+
+def delete_atividade(id: int):
+    session = SessionLocal()
+    try:
+        result = session.execute(text("DELETE FROM Atividade WHERE id = :id"), {'id': id})
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Erro ao excluir atividade: {str(e)}")
+    finally:
+        session.close()
