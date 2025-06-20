@@ -1,46 +1,59 @@
-from sqlalchemy import create_engine, Table, text, MetaData,insert
-from database import engine,SessionLocal
 
-metadata = MetaData()
-atividades = Table('Atividade', metadata, autoload_with=engine)
-# acredito que seria mais coerente com o uso do sqlalchemy ter um models.py
-# com classes que utilizam apenas ORM para interagir com a db. Até para poder 
-# reduzir a possibilidade de sqlInjection
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import Select, text
+from database import SessionLocal
+from models import Atividade, TipoAtividade, FormaAplicacao, LocalProva, Turma
 
-# uma boa prática seria criar um Enum para tipo_atividade, forma_aplicacao, local_prova etc.
-def insert_atividade(materia, assunto, data_hora_realizacao, matricula, tipo_atividade, forma_aplicacao,
-                     links_material, permite_consulta, pontuacao, local_prova, materiais_necessarios,
-                     outros_materiais, avaliativa):
-    session = SessionLocal() # a abordagem com o session é mais comum no uso do flask
+def insert_atividade(
+    materia: str,
+    assunto: str,
+    data_hora_realizacao,
+    matricula: str,
+    tipo_atividade: TipoAtividade,
+    forma_aplicacao: FormaAplicacao,
+    links_material: str,
+    permite_consulta: bool,
+    pontuacao,
+    local_prova: LocalProva,
+    materiais_necessarios: str,
+    outros_materiais: str,
+    avaliativa: bool,
+    turma: Turma
+):
+    session = SessionLocal()
     try:
-        stmt = insert(atividades).values(
-                materia=materia,
-                assunto=assunto,
-                data_hora_realizacao=data_hora_realizacao,
-                matricula=matricula,
-                tipo_atividade=tipo_atividade,
-                forma_aplicacao=forma_aplicacao,
-                links_material=links_material,
-                permite_consulta=permite_consulta,
-                pontuacao=pontuacao,
-                local_prova=local_prova,
-                materiais_necessarios=materiais_necessarios,
-                outros_materiais=outros_materiais,
-                avaliativa=avaliativa
-            )
-        session.execute(stmt)
+        nova_atividade = Atividade(
+            materia=materia,
+            assunto=assunto,
+            data_hora_realizacao=data_hora_realizacao,
+            matricula=matricula,
+            tipo_atividade=tipo_atividade,
+            forma_aplicacao=forma_aplicacao,
+            links_material=links_material,
+            permite_consulta=permite_consulta,
+            pontuacao=pontuacao,
+            local_prova=local_prova,
+            materiais_necessarios=materiais_necessarios,
+            outros_materiais=outros_materiais,
+            avaliativa=avaliativa,
+            turma=turma
+        )
+        
+        session.add(nova_atividade)
+        session.flush() 
         session.commit()
         return "Atividade cadastrada com sucesso"
-    except Exception as e:
+    except SQLAlchemyError as e:
         session.rollback()
-        raise Exception(f"Erro ao cadastrar atividade: {e}") # exceção para ser capturada na main
+        raise Exception(f"Erro ao cadastrar atividade: {str(e)}")
     finally:
         session.close()
+
 
 def get_atividades():
     session = SessionLocal()
     try:
-        result = session.execute(text("SELECT * FROM Atividade"))
+        result = session.execute(text("SELECT * FROM Atividade ORDER BY data_hora_realizacao ASC"))
         return result.mappings().all()
     except Exception as e:
         raise Exception(f"Erro ao buscar atividades: {e}")

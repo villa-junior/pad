@@ -2,7 +2,7 @@ from atividadespad import insert_atividade, get_atividades
 from flask import Flask,render_template,url_for,session,request,redirect,flash,g
 from faleConosco import insert_reclamacao,get_reclamacao
 from database import close_db
-
+from models import Turma, TipoAtividade, FormaAplicacao, LocalProva
 
 from auth import bp,login_required
 
@@ -36,16 +36,16 @@ def cadastrar_atividade():
         materia = request.form.get('materia')
         assunto = request.form.get('assunto')
         data_hora_realizacao = request.form.get('data_hora_realizacao')
-        tipo_atividade = request.form.get('tipo_atividade')
-        forma_aplicacao = request.form.get('forma_aplicacao')
+        tipo_atividade = TipoAtividade(request.form.get("tipo_atividade"))
+        forma_aplicacao = FormaAplicacao(request.form.get("forma_aplicacao"))
         links_material = request.form.get('links_material')
         permite_consulta = bool(request.form.get('permite_consulta'))
         pontuacao = request.form.get('pontuacao')
-        local_prova = request.form.get('local_prova')
+        local_prova = LocalProva(request.form.get('local_prova'))
         materiais_necessarios = request.form.get('materiais_necessarios')
         outros_materiais = request.form.get('outros_materiais')
         avaliativa = bool(request.form.get('avaliativa'))
-
+        turma = Turma(request.form.get('turma'))
         error = None
         if error is not None: # captura erros do backend e adiciona na interface
             flash(error)
@@ -61,16 +61,16 @@ def cadastrar_atividade():
         else:
             try:
                 insert_atividade(
-                    materia, assunto, data_hora_realizacao,g.user["matricula"], tipo_atividade, forma_aplicacao,
+                    materia, assunto, data_hora_realizacao, g.user["matricula"], tipo_atividade, forma_aplicacao,
                     links_material, permite_consulta, pontuacao, local_prova, materiais_necessarios,
-                    outros_materiais, avaliativa
+                    outros_materiais, avaliativa, turma
                 )
                 error = "Atividade cadastrada com sucesso."
                 return redirect(url_for('home'))  # ou outra rota pós-cadastro
             except Exception as e:
                 error = f"Erro ao cadastrar atividade: {str(e)}" 
 
-    return render_template("cadastrar_atividade.html")
+    return render_template("form_atividades.html")
 
 @app.route("/atividades")
 @login_required
