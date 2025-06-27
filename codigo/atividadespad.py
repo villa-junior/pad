@@ -1,4 +1,4 @@
-
+import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import Select, text
 from database import SessionLocal
@@ -39,6 +39,8 @@ def insert_atividade(
             turma=turma.value
         )
         
+        if verificar_atividade_dia(data_hora_realizacao, turma):
+            return "Já existem 2 atividades cadastradas para essa turma nesse dia."
         session.add(nova_atividade)
         session.flush() 
         session.commit()
@@ -68,6 +70,20 @@ def verificar_atividade(id: int):
         if not atividade:
             raise Exception("Atividade não encontrada")
         return matricula
+    except SQLAlchemyError as e:
+        raise Exception(f"Erro ao verificar atividade: {str(e)}")
+    finally:
+        session.close()
+
+def verificar_atividade_dia(data_hora_realizacao, turma: Turma) -> bool:
+    session = SessionLocal()
+    try:
+        atividades = session.execute(text("SELECT * FROM Atividade WHERE DATE(data_hora_realizacao) = DATE(:data_hora_realizacao) AND turma = :turma"),
+                                     {'data_hora_realizacao': data_hora_realizacao, 'turma': turma.value}).fetchall()
+        if len(atividades) > 2:
+            return True
+        
+        return False
     except SQLAlchemyError as e:
         raise Exception(f"Erro ao verificar atividade: {str(e)}")
     finally:

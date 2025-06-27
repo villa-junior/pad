@@ -59,11 +59,11 @@ def cadastrar_atividade():
             error = "Preencha todos os campos obrigatórios."
         else:
             try:
-                insert_atividade(
+                flash(insert_atividade(
                     materia, assunto, data_hora_realizacao, g.user["matricula"], tipo_atividade, forma_aplicacao,
                     links_material, permite_consulta, pontuacao, local_prova, materiais_necessarios,
                     outros_materiais, avaliativa, turma
-                )
+                ))
                 error = "Atividade cadastrada com sucesso."
                 return redirect(url_for('home'))  # ou outra rota pós-cadastro
             except Exception as e:
