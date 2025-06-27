@@ -38,7 +38,7 @@ def insert_atividade(
             avaliativa=avaliativa,
             turma=turma.value
         )
-        
+
         if verificar_atividade_dia(data_hora_realizacao, turma):
             return "Já existem 2 atividades cadastradas para essa turma nesse dia."
         session.add(nova_atividade)
@@ -80,7 +80,7 @@ def verificar_atividade_dia(data_hora_realizacao, turma: Turma) -> bool:
     try:
         atividades = session.execute(text("SELECT * FROM Atividade WHERE DATE(data_hora_realizacao) = DATE(:data_hora_realizacao) AND turma = :turma"),
                                      {'data_hora_realizacao': data_hora_realizacao, 'turma': turma.value}).fetchall()
-        if len(atividades) > 2:
+        if len(atividades) >= 2:
             return True
         
         return False
