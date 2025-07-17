@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 
 import os
 from dotenv import load_dotenv
-
+load_dotenv()
 EMAIL = os.getenv("EMAIL")
 SENHA_APP = os.getenv("SENHA_APP")
 
