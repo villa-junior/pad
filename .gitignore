@@ -1,3 +1,4 @@
 myenv/
 codigo/__pycache__/
 .env
+.venv
