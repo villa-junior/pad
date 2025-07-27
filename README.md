@@ -60,7 +60,7 @@ As atividades são armazenadas em um banco de dados relacional e podem ser consu
    mysql -u root -p < bancopad.sql
    ```
 
-4. Ajuste as credenciais de acesso ao banco no arquivo `atividadespad.py`.
+4. Ajuste as credenciais de acesso ao banco no arquivo, email e código de app no`.env`.
 
 ---
 

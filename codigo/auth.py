@@ -6,9 +6,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Table, text, MetaData,insert
 
-import smtplib # Permitir enviar emails por SMTP
-from email.mime.text import MIMEText
-
 from database import SessionLocal,engine
 
 import os

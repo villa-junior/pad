@@ -79,3 +79,40 @@ class Atividade(Base):
     turma = Column(SAEnum(Turma, native_enum=True), nullable=False)
 
     usuario = relationship("Usuario", back_populates="atividades")
+
+class Evento(Base):
+    __tablename__ = "Evento"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    titulo = Column(String(255), nullable=False)
+    descricao = Column(Text, nullable=True)
+    data_inicio = Column(DateTime, nullable=False)
+    data_fim = Column(DateTime, nullable=False)
+
+    programacoes = relationship("ProgramacaoEvento", back_populates="evento", cascade="all, delete-orphan")
+    participacoes = relationship("ParticipacaoEvento", back_populates="evento", cascade="all, delete-orphan")
+
+
+class ProgramacaoEvento(Base):
+    __tablename__ = "ProgramacaoEvento"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    evento_id = Column(Integer, ForeignKey("Evento.id", ondelete="CASCADE"), nullable=False)
+    horario_inicio = Column(DateTime, nullable=False)
+    horario_fim = Column(DateTime, nullable=False)
+    tema = Column(String(255), nullable=False)
+    organizador = Column(String(100), nullable=True)
+    descricao = Column(Text, nullable=True)
+
+    evento = relationship("Evento", back_populates="programacoes")
+
+
+class ParticipacaoEvento(Base):
+    __tablename__ = "ParticipacaoEvento"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    evento_id = Column(Integer, ForeignKey("Evento.id", ondelete="CASCADE"), nullable=False)
+    usuario_id = Column(String(20), ForeignKey("Usuario.matricula", ondelete="CASCADE"), nullable=False)
+    papel = Column(String(100))  # Ex: 'Organizador', 'Participante'
+
+    evento = relationship("Evento", back_populates="participacoes")
