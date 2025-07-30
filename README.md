@@ -67,7 +67,7 @@ As atividades são armazenadas em um banco de dados relacional e podem ser consu
 ## Como executar
 
 ```bash
-python atividadespad.py
+python main.py
 ```
 
 - Acesse em: [http://localhost:5000](http://localhost:5000)
@@ -79,3 +79,4 @@ python atividadespad.py
 
 - O banco de dados precisa conter ao menos um docente registrado para que a página funcione corretamente.
 - Alguns campos e validações estão em desenvolvimento.
+- Adicione o .env com as informações necessárias na pasta do projeto.
