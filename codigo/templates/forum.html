@@ -2,13 +2,13 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Minhas Reclamações</title>
+    <title>PAD - Fórum</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
 <header>
-    <h1>PAD - Fale Conosco</h1>
+    <h1>PAD - Fórum</h1>
     <div class="auth-links">
         {% if g.user %}
             <span>Olá, {{ g.user['nome'] }}</span>
@@ -21,22 +21,7 @@
 </header>
 
 <main>
-    <h2>Reclamações</h2>
-
-    {% if reclamacoes %}
-        <div class="reclamacoes">
-            {% for r in reclamacoes %}
-                <div class="reclamacao">
-                    <h3>{{ r['topico_nome'] }}</h3>
-                    <p>{{ r['descricao'] }}</p>
-                    <small>Data: {{ r['data_reclamacao'] }}</small>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Nenhuma reclamação.</p>
-    {% endif %}
-	<!-- Seria bom colocar um "Fazer uma reclamação" aqui. -->
+    <h2>Fórum</h2>
 </main>
 
 <footer>
