@@ -1,28 +1,48 @@
+from flask import Flask, render_template, url_for, session, request, redirect, flash, g, jsonify
+from flask_mail import Mail, Message
 from atividadespad import insert_atividade, get_atividades, delete_atividade, verificar_atividade
-from flask import Flask,render_template,url_for,session,request,redirect,flash,g, jsonify
-from faleConosco import insert_reclamacao,get_reclamacao
-from database import close_db
+from faleConosco import insert_reclamacao, get_reclamacao
+from database import close_db, get_db
 from models import Turma, TipoAtividade, FormaAplicacao, LocalProva
-
-from auth import bp,login_required
+from auth import bp, login_required
 
 app = Flask(__name__)
 
-# Fecha conexão ao final de cada request
+# Configurações gerais
 app.teardown_appcontext(close_db)
-app.config.from_mapping(
-        SECRET_KEY='dev' # usada na criptografação do cookies (dados de login)
-)
-app.register_blueprint(bp) # adição das urls para autenticação
+app.config.from_mapping(SECRET_KEY='dev')
+
+# Configurações do Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'comunicao.pad@gmail.com'  # substitua pelo seu usuário real
+app.config['MAIL_PASSWORD'] = 'uckp diel azuj hfdg'      # substitua pela sua senha real ou app password
+app.config['MAIL_DEFAULT_SENDER'] = ('Sistema de Atividades', 'comunicao.pad@gmail.com')
+
+mail = Mail(app)
+
+app.register_blueprint(bp)
+
+# Função para enviar notificações por e-mail para uma lista de alunos
+def notificar_alunos(emails, atividade):
+    with app.app_context():
+        for email in emails:
+            msg = Message(
+                subject='📚 Nova Atividade Cadastrada',
+                recipients=[email],
+                body=f"Uma nova atividade foi cadastrada:\n\n"
+                     f"Matéria: {atividade['materia']}\n"
+                     f"Assunto: {atividade['assunto']}\n"
+                     f"Data e hora: {atividade['data_hora']}\n"
+                     f"\nAcesse o sistema para mais detalhes."
+            )
+            mail.send(msg)
+
 @app.route("/")
 def home():
-    #print(session) 
     return render_template("home.html")
 
-# no futuro seria ideal implementar um função genérica para tratar todas requisições e
-# implementando o tratamento de erros correto com a HTTPException (404,403,500 etc.)
-
-# acho que seria legal unir esses dois endpoints, afinal "formulario" é muito genérico
 @app.route("/formulario")
 @login_required
 def formulario():
@@ -46,14 +66,9 @@ def cadastrar_atividade():
         avaliativa = bool(request.form.get('avaliativa'))
         turma = Turma(request.form.get('turma'))
         error = None
-        if error is not None: # captura erros do backend e adiciona na interface
-            flash(error)
 
-        # Verificação básica de campos obrigatórios
         if not g.user:
             error = 'Log in não realizado'
-
-        # esse g.user representa o usuário logado e registrado nos cookies
 
         if not materia or not assunto or not data_hora_realizacao or not g.user["matricula"]:
             error = "Preencha todos os campos obrigatórios."
@@ -64,10 +79,26 @@ def cadastrar_atividade():
                     links_material, permite_consulta, pontuacao, local_prova, materiais_necessarios,
                     outros_materiais, avaliativa, turma
                 ))
-                error = "Atividade cadastrada com sucesso."
-                return redirect(url_for('home'))  # ou outra rota pós-cadastro
+
+                # Buscar emails de todos os alunos
+                db = get_db()
+                alunos = db.execute("SELECT email FROM Usuario").fetchall()
+                emails_alunos = [aluno['email'] for aluno in alunos]
+
+                atividade = {
+                    'materia': materia,
+                    'assunto': assunto,
+                    'data_hora': data_hora_realizacao
+                }
+
+                notificar_alunos(emails_alunos, atividade)
+
+                return render_template("atividade_cadastrada.html", materia=materia, assunto=assunto)
+
             except Exception as e:
                 error = f"Erro ao cadastrar atividade: {str(e)}" 
+
+        flash(error)
 
     return render_template("form_atividades.html")
 
@@ -98,32 +129,31 @@ def excluir_atividade(id):
 @app.route("/reclamar", methods=('GET', 'POST'))
 @login_required
 def post_reclamacoes_endpoint():
-    if request.method == 'POST': # substituir pelo uso do FlaskWTF
+    if request.method == 'POST':
         topico = request.form.get("topico")
         descricao = request.form.get("descricao")
-
         error = None
 
-        if not g.user: # g é uma variavel global do Flask, uma das muitas esquisitices desse framework
+        if not g.user:
             error = 'Log in não realizado'
-        elif not topico:# captura erros do backend e adiciona na interface
+        elif not topico:
             error = 'Tópico é obrigatório.'
         elif not descricao:
             error = 'Descrição é obrigatória.'
 
-        if error is not None: # captura erros do backend e adiciona na interface
+        if error is not None:
             flash(error)
         else:
             try:
-                insert_reclamacao( # usar o type hint do python é bem útil nessas situações
+                insert_reclamacao(
                     matricula=g.user["matricula"], 
                     topico=topico,
                     descricao=descricao
                 )
                 flash("Reclamação enviada com sucesso.")
-                return redirect(url_for("home"))  # ou outra rota após sucesso
+                return redirect(url_for("home"))
             except Exception as e:
-                error = f"Erro ao enviar reclamação: {str(e)}" # adiciona a exceção na variavel
+                error = f"Erro ao enviar reclamação: {str(e)}"
 
     return render_template("form_reclamar.html")
 

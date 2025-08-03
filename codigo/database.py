@@ -18,6 +18,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def get_engine():
     return engine
 
+def get_db():
+    if 'db' not in g:
+        g.db = SessionLocal()
+    return g.db
+
 def close_db(e=None):
     db = g.pop('db', None)
 
