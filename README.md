@@ -60,14 +60,14 @@ As atividades são armazenadas em um banco de dados relacional e podem ser consu
    mysql -u root -p < bancopad.sql
    ```
 
-4. Ajuste as credenciais de acesso ao banco no arquivo `atividadespad.py`.
+4. Ajuste as credenciais de acesso ao banco no arquivo, email e código de app no`.env`.
 
 ---
 
 ## Como executar
 
 ```bash
-python atividadespad.py
+python main.py
 ```
 
 - Acesse em: [http://localhost:5000](http://localhost:5000)
@@ -79,3 +79,4 @@ python atividadespad.py
 
 - O banco de dados precisa conter ao menos um docente registrado para que a página funcione corretamente.
 - Alguns campos e validações estão em desenvolvimento.
+- Adicione o .env com as informações necessárias na pasta do projeto.
