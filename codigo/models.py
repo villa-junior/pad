@@ -50,7 +50,7 @@ class Turma(enum.Enum):
 class Usuario(Base):
     __tablename__ = "Usuario"
 
-    matricula = Column(String(20), primary_key=True)
+    matricula = Column(String(20), primary_key=True) 
     nome = Column(String(100), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     senha = Column(String(255), nullable=False)

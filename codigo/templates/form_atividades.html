@@ -1,20 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Cadastro de Atividade</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
 
-  <header>
-    <h1>PAD - Cadastro de Atividade</h1>
-    <div class="auth-links">
-      <a href="{{ url_for('atividades') }}">Ver Atividades</a>
-    </div>
-  </header>
+{% extends "base.html" %}
 
-  <main>
+{% block titulo %}Cadastro de Atividade{% endblock %}
+
+{% block sub_titulo %}PAD - Cadastro de Atividade{% endblock %}
+
+{% block conteudo %}
     <form action="/cadastrar_atividade" method="post">
       <label for="materia">Matéria:</label>
       <input type="text" id="materia" name="materia" required>
@@ -93,14 +85,7 @@
 
       <button type="submit">Salvar Atividade</button>
     </form>
-  </main>
-
-  <footer>
-    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
-    <p>PAD - Plataforma de Atendimento Discente</p>
-    <p>Projeto produzido na disciplina PPA 2025</p>
-    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
-</footer>
-
-</body>
-</html>
+	<div class="auth-links">
+      <a href="{{ url_for('atividades') }}">Ver Atividades</a>
+    </div>
+{% endblock %}

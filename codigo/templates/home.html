@@ -1,28 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Página Inicial</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
 
-<header>
-    <h1>PAD - Plataforma de Agendamento Discente</h1>
-    
-    <div class="auth-links">
-        {% if g.user %}
-            <span>Olá, {{ g.user['nome'] }}</span>
-            <a href="{{ url_for('auth.logout') }}">Sair</a>
-        {% else %}
-            <a href="{{ url_for('auth.login') }}">Login</a>
-            <a href="{{ url_for('auth.register') }}">Sign In</a>
-        {% endif %}
-    </div>
-</header>
+{% extends "base.html" %}
 
-<main>
-    {% for message in get_flashed_messages() %}
+{% block titulo %}Página Inicial{% endblock %}
+
+{% block sub_titulo %}PAD - Página Inicial{% endblock %}
+
+{% block conteudo %}
+{% for message in get_flashed_messages() %}
         <div class="flash">{{ message }}</div>
     {% endfor %}
     <h2>Fale Conosco</h2>
@@ -41,13 +26,4 @@
             <li><a href="/atividades">Ver atividades</a></li>
         </ul>
     </nav>
-</main>
-<footer>
-    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
-    <p>PAD - Plataforma de Atendimento Discente</p>
-    <p>Projeto produzido na disciplina PPA 2025</p>
-    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
-</footer>
-
-</body>
-</html>
+{% endblock %}

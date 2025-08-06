@@ -1,26 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Minhas Reclamações</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
 
-<header>
-    <h1>PAD - Fale Conosco</h1>
-    <div class="auth-links">
-        {% if g.user %}
-            <span>Olá, {{ g.user['nome'] }}</span>
-            <a href="/auth/logout">Sair</a>
-        {% else %}
-            <a href="/auth/login">Login</a>
-            <a href="/auth/register">Sign In</a>
-        {% endif %}
-    </div>
-</header>
+{% extends "base.html" %}
 
-<main>
+{% block titulo %}Minhas Reclamações{% endblock %}
+
+{% block sub_titulo %}PAD - Fale Conosco{% endblock %}
+
+{% block conteudo %}
     <h2>Reclamações</h2>
 
     {% if reclamacoes %}
@@ -36,15 +22,4 @@
     {% else %}
         <p>Nenhuma reclamação.</p>
     {% endif %}
-	<!-- Seria bom colocar um "Fazer uma reclamação" aqui. -->
-</main>
-
-<footer>
-    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
-    <p>PAD - Plataforma de Atendimento Discente</p>
-    <p>Projeto produzido na disciplina PPA 2025</p>
-    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
-</footer>
-
-</body>
-</html>
+{% endblock %}
