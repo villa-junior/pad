@@ -11,7 +11,7 @@ reclamacoes_table = Table('Reclamacao', metadata, autoload_with=engine)
 
 def insert_reclamacao(matricula: int, topico: str, descricao: str):
     session = SessionLocal() # a abordagem com o session é mais comum no uso do flask
-    data_atual = datetime.now().strftime("%Y-%m-%d %H:%M")
+    data_atual = datetime.now().strftime("%Y-%m-%d %H:%M") # correcao de data
     
     try:
         stmt = insert(reclamacoes_table).values(
