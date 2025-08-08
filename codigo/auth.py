@@ -12,14 +12,14 @@ import os
 from dotenv import load_dotenv
 
 metadata = MetaData()
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp_auth = Blueprint('auth', __name__, url_prefix='/auth')
 usuarios_table = Table('Usuario', metadata, autoload_with=engine)
 # acredito que seria mais coerente com o uso do sqlalchemy ter um models.py
 # com classes que utilizam apenas ORM para interagir com a db
 
 from sqlalchemy import select
 
-@bp.route('/register', methods=('GET', 'POST'))
+@bp_auth.route('/register', methods=('GET', 'POST'))
 def register():  # TODO: adicionar verificação de nome e matricula
     if request.method == 'POST':
         matricula = request.form['matricula']
@@ -81,9 +81,7 @@ def register():  # TODO: adicionar verificação de nome e matricula
 
     return render_template('auth/register.html')
 
-
-
-@bp.route('/login', methods=('GET', 'POST'))
+@bp_auth.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
         matricula = request.form['matricula']
@@ -118,9 +116,7 @@ def login():
 
     return render_template('auth/login.html')
 
-
-#def Alterar senha
-@bp.route('/change_password', methods=('GET', 'POST'))
+@bp_auth.route('/change_password', methods=('GET', 'POST'))
 def change_password():
     if request.method == 'POST':
         matricula = session.get('matricula')
@@ -182,7 +178,7 @@ def change_password():
 
 from utils import gerar_cod_verificacao,enviar_email
 
-@bp.route('/verificar_email', methods=['GET', 'POST'])
+@bp_auth.route('/verificar_email', methods=['GET', 'POST'])
 def verificar_email_endpoint():
 
     contexto = None
@@ -233,8 +229,7 @@ def verificar_email_endpoint():
 
     return render_template("auth/verify_email.html", email=email)
 
-#def recuperar senha
-@bp.route('/recover_password', methods = ['GET','POST'])
+@bp_auth.route('/recover_password', methods = ['GET','POST'])
 def recover_password():
 
     EMAIL = os.getenv("EMAIL")
@@ -270,10 +265,8 @@ def recover_password():
 
     
     return render_template('auth/recover_password.html')
-            
-            
-#def reset_password
-@bp.route('/reset_password', methods=['GET', 'POST'])
+                        
+@bp_auth.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
     email = session['recuperacao_senha']
     
@@ -317,7 +310,7 @@ def reset_password():
     return render_template("auth/reset_password.html")
 # o session do flask é utilizado para acessar o "localStorage" a
 
-@bp.before_app_request
+@bp_auth.before_app_request
 def load_logged_in_user():
     matricula = session.get('matricula')
 
@@ -337,7 +330,7 @@ def load_logged_in_user():
             session_db.close()
 
 
-@bp.route('/logout')
+@bp_auth.route('/logout')
 def logout():
     session.clear() # limpa a sessão e os cookies carregados
     return redirect(url_for('home'))

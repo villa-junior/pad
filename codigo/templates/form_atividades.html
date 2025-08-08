@@ -7,7 +7,7 @@
 {% block sub_titulo %}PAD - Cadastro de Atividade{% endblock %}
 
 {% block conteudo %}
-    <form action="/cadastrar_atividade" method="post">
+    <form action="/atividades/cadastrar" method="post">
       <label for="materia">Matéria:</label>
       <input type="text" id="materia" name="materia" required>
 
@@ -86,6 +86,6 @@
       <button type="submit">Salvar Atividade</button>
     </form>
 	<div class="auth-links">
-      <a href="{{ url_for('atividades') }}">Ver Atividades</a>
+      <a href="/atividades">Ver Atividades</a>
     </div>
 {% endblock %}
