@@ -1,19 +1,28 @@
-from flask import Flask,render_template
-from database import close_db
+import os
+from dotenv import load_dotenv
+from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
-from auth import bp_auth,login_required
+from models import Base  # Base e models declarados no seu models.py
+
+from auth import bp_auth, login_required
 from faleConosco import bp_fale_conosco
 from atividades import bp_atividades
 
+load_dotenv() # carrega variáveis do .env
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# Fecha conexão ao final de cada request
-app.teardown_appcontext(close_db)
-app.config.from_mapping(
-        SECRET_KEY='dev' # usada na criptografação do cookies (dados de login)
-)
+# inicializacao do db e migrate com flask
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
+migrate = Migrate(app, db)
 
-# adição de blueprints, separando os endpoints e métodos de cada um grupo num arquivo separado
+# Blueprints
 app.register_blueprint(bp_auth)
 app.register_blueprint(bp_fale_conosco)
 app.register_blueprint(bp_atividades)
@@ -21,9 +30,6 @@ app.register_blueprint(bp_atividades)
 @app.route("/")
 def home():
     return render_template("home.html")
-
-# no futuro seria ideal implementar um função genérica para tratar todas requisições e
-# implementando o tratamento de erros correto com a HTTPException (404,403,500 etc.)
 
 @app.route("/forum")
 @login_required
