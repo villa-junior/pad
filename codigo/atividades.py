@@ -57,7 +57,7 @@ def insert_atividade(
     finally:
         session.close()
 
-
+# TODO: retirar essas consultas sql daqui, fazer tudo em ORM
 def get_atividades():
     session = SessionLocal()
     try:

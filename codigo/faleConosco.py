@@ -6,9 +6,7 @@ from flask import (
 )
 
 from auth import login_required
-
-metadata = MetaData()
-reclamacoes_table = Table('Reclamacao', metadata, autoload_with=engine)
+from models import Reclamacao,TopicoReclamacao
 
 bp_fale_conosco = Blueprint('faleConosco', __name__, url_prefix='/faleConosco')
 
@@ -17,29 +15,31 @@ def insert_reclamacao(matricula: int, topico: str, descricao: str):
     data_atual = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     try:
-        stmt = insert(reclamacoes_table).values(
-                    matricula=matricula,
-                    topico=topico,
-                    descricao=descricao,
-                    data_reclamacao=data_atual
-                )
-        session.execute(stmt)
+        nova_reclamacao = Reclamacao(
+            matricula=matricula,
+            topico=topico,
+            descricao=descricao,
+            data_reclamacao=data_atual
+        )
+        # TODO: adicionar verificação de quem pode reclamar
+        session.add(nova_reclamacao)
+        session.flush()
         session.commit()
-        return "Atividade cadastrada com sucesso"
+        return "Reclamação adicionada com sucesso"
     except Exception as e: # exceção para ser capturada na main
         session.rollback() # caso dê alguma merda a db volta atrás
-        raise Exception(f"Erro ao cadastrar atividade: {e}")
+        raise Exception(f"Erro ao enviar reclamação: {e}")
     finally:
         session.close()
 
-
+#TODO: modificar para separar reclamação por tópico
 def get_reclamacao():
     session = SessionLocal()
     try:
-        result = session.execute(text("SELECT * FROM Reclamacao"))
-        return result.mappings().all()
-    except Exception as e: # exceção para ser capturada na main
-        raise Exception(f"Erro ao buscar atividades: {e}")
+        reclamacoes = session.query(Reclamacao).all()
+        return reclamacoes
+    except Exception as e:
+        raise Exception(f"Erro ao buscar reclamações: {e}")
     finally:
         session.close()
 

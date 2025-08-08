@@ -7,6 +7,7 @@ import enum
 
 from sqlalchemy.ext.declarative import declarative_base
 
+#TODO: implementar operacoes assincronas, na criacao da base e no crud
 Base = declarative_base()
 
 class TipoAtividade(enum.Enum):
@@ -16,6 +17,12 @@ class TipoAtividade(enum.Enum):
     Seminario = "Seminário"
     Lista_de_Atividades = "Lista de Atividades"
 
+class TopicoReclamacao(enum.Enum):
+    Calendario = "Calendário"
+    Cadastro_de_Perfil = "Cadastro de Perfil"
+    Cadastro_de_Atividades = "Cadastro de Atividades"
+    Avaliacoes = "Avaliações"
+    Outros = "Outros"
 
 class FormaAplicacao(enum.Enum):
     Individual = "Individual"
@@ -56,6 +63,7 @@ class Usuario(Base):
     senha = Column(String(255), nullable=False)
 
     atividades = relationship("Atividade", back_populates="usuario", cascade="all, delete-orphan")
+    reclamacoes = relationship("Reclamacao", back_populates="usuario", cascade="all, delete-orphan")
 
 
 class Atividade(Base):
@@ -91,6 +99,17 @@ class Evento(Base):
 
     programacoes = relationship("ProgramacaoEvento", back_populates="evento", cascade="all, delete-orphan")
     participacoes = relationship("ParticipacaoEvento", back_populates="evento", cascade="all, delete-orphan")
+
+class Reclamacao(Base):
+    __tablename__ = "Reclamacao"
+
+    id_reclamacao = Column(Integer, primary_key=True, autoincrement=True)
+    matricula = Column(String(20), ForeignKey("Usuario.matricula", ondelete="CASCADE"), nullable=False)
+    topico = Column(SAEnum(TopicoReclamacao, native_enum=True), nullable=False)
+    descricao = Column(Text, nullable=False)
+    data_reclamacao = Column(DateTime, server_default=func.now(), nullable=False)
+
+    usuario = relationship("Usuario", back_populates="reclamacoes")
 
 
 class ProgramacaoEvento(Base):
