@@ -1,26 +1,22 @@
-import functools
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import Table, text, MetaData,insert
+from sqlalchemy.orm import Session
 
-from database import SessionLocal,engine
+from database import SessionLocal  # sessionmaker criado no seu database.py
+from models import Usuario  # importa o modelo ORM
 
+import functools
 import os
-from dotenv import load_dotenv
-
-metadata = MetaData()
-bp_auth = Blueprint('auth', __name__, url_prefix='/auth')
-usuarios_table = Table('Usuario', metadata, autoload_with=engine)
-# acredito que seria mais coerente com o uso do sqlalchemy ter um models.py
-# com classes que utilizam apenas ORM para interagir com a db
-
+from utils import gerar_cod_verificacao, enviar_email
 from sqlalchemy import select
 
+bp_auth = Blueprint('auth', __name__, url_prefix='/auth')
+
 @bp_auth.route('/register', methods=('GET', 'POST'))
-def register():  # TODO: adicionar verificação de nome e matricula
+def register():
     if request.method == 'POST':
         matricula = request.form['matricula']
         nome = request.form['nome']
@@ -41,27 +37,24 @@ def register():  # TODO: adicionar verificação de nome e matricula
         if error is None:
             session_db = SessionLocal()
             try:
-                # Verificar se algum dado já existe na tabela
-                stmt = select(usuarios_table).where(
-                    (usuarios_table.c.matricula == matricula) |
-                    (usuarios_table.c.nome == nome) |
-                    (usuarios_table.c.email == email)
-                )
-                result = session_db.execute(stmt).first()
-                if result:
-                    # Verifica qual campo está duplicado para feedback melhor
-                    if result.matricula == matricula:
+                # Verificar duplicatas usando ORM
+                existing_user = session_db.query(Usuario).filter(
+                    (Usuario.matricula == matricula) |
+                    (Usuario.nome == nome) |
+                    (Usuario.email == email)
+                ).first()
+
+                if existing_user:
+                    if existing_user.matricula == matricula:
                         error = "Matrícula já registrada."
-                    elif result.nome == nome:
+                    elif existing_user.nome == nome:
                         error = "Nome já registrado."
-                    elif result.email == email:
+                    elif existing_user.email == email:
                         error = "Email já registrado."
                 else:
-                    # Gera código e envia
                     codigo_gerado = gerar_cod_verificacao()
                     enviar_email(codigo=codigo_gerado, destinatario=email, subject="Verificação de Email")
 
-                    # Armazena dados temporariamente na session
                     session['registro_temp'] = {
                         'matricula': matricula,
                         'nome': nome,
@@ -81,6 +74,7 @@ def register():  # TODO: adicionar verificação de nome e matricula
 
     return render_template('auth/register.html')
 
+
 @bp_auth.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
@@ -91,20 +85,16 @@ def login():
         session_db = SessionLocal()
 
         try:
-            result = session_db.execute(
-                text("SELECT * FROM Usuario WHERE matricula = :matricula"),
-                {'matricula': matricula}
-            )
-            user = result.mappings().first()
+            user = session_db.query(Usuario).filter_by(matricula=matricula).first()
 
             if user is None:
                 error = 'Matrícula não encontrada.'
-            elif not check_password_hash(user['senha'], senha):
+            elif not check_password_hash(user.senha, senha):
                 error = 'Senha incorreta.'
             
             if error is None:
-                session.clear()  # session do Flask
-                session['matricula'] = user['matricula']
+                session.clear()
+                session['matricula'] = user.matricula
                 return redirect(url_for('home'))
 
         except Exception as e:
@@ -115,6 +105,7 @@ def login():
         flash(error)
 
     return render_template('auth/login.html')
+
 
 @bp_auth.route('/change_password', methods=('GET', 'POST'))
 def change_password():
@@ -135,48 +126,34 @@ def change_password():
             flash("A nova senha não pode ser igual a anterior ")
             return redirect(url_for('auth.change_password'))
 
-        session_db = None  
+        session_db = SessionLocal()  
         try:
-            session_db = SessionLocal()  
-
-           
-            result = session_db.execute(
-                text("SELECT * FROM Usuario WHERE matricula = :matricula"),
-                {'matricula': matricula}
-            )
-            user = result.mappings().first()
+            user = session_db.query(Usuario).filter_by(matricula=matricula).first()
 
             if user is None:
                 flash("Usuário não encontrado.")
                 return redirect(url_for('auth.login'))
 
-            if not check_password_hash(user['senha'], senha_atual):
+            if not check_password_hash(user.senha, senha_atual):
                 flash("Senha atual incorreta.")
                 return redirect(url_for('auth.change_password'))
 
-            hashed_new_password = generate_password_hash(nova_senha)
-            session_db.execute(
-                text("UPDATE Usuario SET senha = :senha WHERE matricula = :matricula"),
-                {'senha': hashed_new_password, 'matricula': matricula}
-            )
+            user.senha = generate_password_hash(nova_senha)
             session_db.commit()
             session.clear()
             flash("Senha alterada com sucesso.")
             return redirect(url_for('auth.login'))
-          
 
         except Exception as e:
+            session_db.rollback()
             flash(f"Erro ao alterar senha: {str(e)}")
             return redirect(url_for('auth.change_password'))
 
         finally:
-            if session_db:  
-                session_db.close()
+            session_db.close()
 
-    
-    return render_template('auth/change_password.html')  
+    return render_template('auth/change_password.html')
 
-from utils import gerar_cod_verificacao,enviar_email
 
 @bp_auth.route('/verificar_email', methods=['GET', 'POST'])
 def verificar_email_endpoint():
@@ -198,38 +175,42 @@ def verificar_email_endpoint():
         codigo_esperado = session.get('codigo_verificacao')
     
         if codigo == codigo_esperado:
-            if contexto == 'cadastro':
-                try:
-                    session_db = SessionLocal()
-                    stmt = insert(usuarios_table).values(
+            session_db = SessionLocal()
+            try:
+                if contexto == 'cadastro':
+                    usuario = Usuario(
                         matricula=session['registro_temp']['matricula'],
                         nome=session['registro_temp']['nome'],
                         email=session['registro_temp']['email'],
                         senha=session['registro_temp']['senha']
                     )
-                    session_db.execute(stmt)
+                    session_db.add(usuario)
                     session_db.commit()
                     flash("Usuário registrado com sucesso!")
                     session.pop('registro_temp', None)
                     session.pop('codigo_verificacao', None)
                     return redirect(url_for('auth.login'))
 
-                except IntegrityError:
-                    session_db.rollback()
-                    flash("Matrícula ou email já registrados.")
-                finally:
-                    session_db.close()
-            elif contexto == 'recuperacao':
-                flash("Código verificado com sucesso. Redefina sua senha.")
-                session.pop('codigo_verificacao', None)
-                # redireciona para página de redefinição
-                return redirect(url_for('auth.reset_password'))
+                elif contexto == 'recuperacao':
+                    flash("Código verificado com sucesso. Redefina sua senha.")
+                    session.pop('codigo_verificacao', None)
+                    return redirect(url_for('auth.reset_password'))
+
+            except IntegrityError:
+                session_db.rollback()
+                flash("Matrícula ou email já registrados.")
+            except Exception as e:
+                session_db.rollback()
+                flash(f"Erro: {e}")
+            finally:
+                session_db.close()
         else:
             flash("Código incorreto!")
 
     return render_template("auth/verify_email.html", email=email)
 
-@bp_auth.route('/recover_password', methods = ['GET','POST'])
+
+@bp_auth.route('/recover_password', methods=['GET','POST'])
 def recover_password():
 
     EMAIL = os.getenv("EMAIL")
@@ -237,15 +218,9 @@ def recover_password():
     if request.method == 'POST':
         email = request.form.get('email')  
 
-        session_db = None
+        session_db = SessionLocal()  
         try:
-            session_db = SessionLocal()  
-
-            result = session_db.execute(
-                text("SELECT * FROM Usuario WHERE email = :email"),
-                {'email': email}
-            )
-            user = result.mappings().first()
+            user = session_db.query(Usuario).filter_by(email=email).first()
 
             if user is None:
                 flash("Não existe nenhum usuário com este e-mail.")
@@ -261,36 +236,35 @@ def recover_password():
         except Exception as e:
             flash(f"Erro ao tentar recuperar conta: {str(e)}")
             return redirect(url_for('auth.recover_password'))
-             
-
+        finally:
+            session_db.close()
     
     return render_template('auth/recover_password.html')
                         
 @bp_auth.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
-    email = session['recuperacao_senha']
-    
     if 'recuperacao_senha' not in session:
         flash("Sessão expirada ou inválida.")
         return redirect(url_for('auth.login'))
 
-   
+    email = session['recuperacao_senha']
+
     if request.method == 'POST':
         nova_senha = request.form.get('nova_senha')
         confirmar = request.form.get('confirmar_senha')
 
-        
         if nova_senha != confirmar:
             flash("As senhas não coincidem.")
             return redirect(url_for('auth.reset_password'))
 
+        session_db = SessionLocal()
         try:
-            session_db = SessionLocal()
-            hashed_new_password = generate_password_hash(nova_senha)
-            session_db.execute(
-                text("UPDATE Usuario SET senha = :senha WHERE email = :email"),
-                {'senha': hashed_new_password, 'email': email}
-            )
+            user = session_db.query(Usuario).filter_by(email=email).first()
+            if not user:
+                flash("Usuário não encontrado.")
+                return redirect(url_for('auth.login'))
+
+            user.senha = generate_password_hash(nova_senha)
             session_db.commit()
             session.clear()
             flash("Senha alterada com sucesso.")
@@ -303,12 +277,10 @@ def reset_password():
         finally:
             session_db.close()
 
-       
         return redirect(url_for('auth.reset_password'))
 
-    
     return render_template("auth/reset_password.html")
-# o session do flask é utilizado para acessar o "localStorage" a
+
 
 @bp_auth.before_app_request
 def load_logged_in_user():
@@ -319,11 +291,7 @@ def load_logged_in_user():
     else:
         session_db = SessionLocal()
         try:
-            result = session_db.execute(
-                text("SELECT * FROM Usuario WHERE matricula = :matricula"),
-                {'matricula': matricula}
-            )
-            g.user = result.mappings().first()
+            g.user = session_db.query(Usuario).filter_by(matricula=matricula).first()
         except:
             g.user = None
         finally:
@@ -332,15 +300,12 @@ def load_logged_in_user():
 
 @bp_auth.route('/logout')
 def logout():
-    session.clear() # limpa a sessão e os cookies carregados
+    session.clear()
     return redirect(url_for('home'))
 
 
-def login_required(view): # função que funciona como decorator (podendo modificar o comportamento de outras funções)
-    @functools.wraps(view)  
-    # neste caso, ele funciona recebendo alguma função (como o de acesso a algum componente do site), 
-    # verificando se existe algum usuário logado na sessão e retornando para a página de login (caso não haja algum usuario)
-    # ou seguindo com o funcionamento da função normalmente
+def login_required(view):
+    @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
