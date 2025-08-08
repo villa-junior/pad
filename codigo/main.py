@@ -138,5 +138,10 @@ def get_reclamacoes_endpoint():
 
     return render_template("reclamacoes.html", reclamacoes=reclamacoes_top)
 
+@app.route("/forum")
+@login_required
+def forum():
+    return render_template("forum.html")
+
 if __name__ == "__main__":
     app.run(debug=True)

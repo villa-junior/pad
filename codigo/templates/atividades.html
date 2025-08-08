@@ -1,21 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atividades Cadastradas</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
 
-    <header>
-        <h1>PAD - Atividades</h1>
-        <div class="auth-links">
-            <a href="{{ url_for('formulario') }}">Cadastrar Nova</a>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <main>
+{% block titulo %}Atividades Cadastradas{% endblock %}
+
+{% block sub_titulo %}PAD - Atividades{% endblock %}
+
+{% block conteudo %}
         <div>
     <label for="filtroTurma"><strong>Filtrar por turma:</strong></label>
     <select id="filtroTurma">
@@ -57,15 +48,9 @@
         {% else %}
             <p class="flash">Nenhuma atividade cadastrada no momento.</p>
         {% endif %}
-    </main>
-
-    <footer>
-        <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
-        <p>PAD - Plataforma de Atendimento Discente</p>
-        <p>Projeto produzido na disciplina PPA 2025</p>
-        <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
-    </footer>
-    
+		
     <script src="{{ url_for('static', filename='js/atividades.js') }}"></script>
-</body>
-</html>
+	<div class="auth-links">
+           <a href="{{ url_for('formulario') }}">Cadastrar Nova</a>
+    </div>
+{% endblock %}

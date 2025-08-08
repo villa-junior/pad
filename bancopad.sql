@@ -1,3 +1,15 @@
+-- Comandos úteis
+/*
+USE bancopad;
+
+SELECT * FROM Tabela;
+
+SELECT UPPER(matricula), UPPER(nome), UPPER(email) FROM Usuario;
+
+SELECT Usuario.matricula, Usuario.nome, Reclamacao.topico, Reclamacao.data_reclamacao, Reclamacao.descricao 
+FROM Usuario INNER JOIN Reclamacao ON Usuario.matricula = Reclamacao.matricula;
+*/
+
 -- Tabela base: Usuario (por enquanto manter genérico)
 CREATE TABLE IF NOT EXISTS Usuario (
     matricula VARCHAR(20) PRIMARY KEY,
@@ -34,6 +46,7 @@ CREATE TABLE IF NOT EXISTS Notificacao (
     data_hora_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (atividade_id) REFERENCES Atividade(id) ON DELETE CASCADE
 );
+
 -- Tabela Reclamacao
 CREATE TABLE IF NOT EXISTS Reclamacao (
     id_reclamacao INT AUTO_INCREMENT PRIMARY KEY,   
@@ -43,7 +56,8 @@ CREATE TABLE IF NOT EXISTS Reclamacao (
     data_reclamacao DATETIME NOT NULL,
     FOREIGN KEY (matricula) REFERENCES Usuario(matricula)
 );
---Tabela Evento 
+
+-- Tabela Evento 
 CREATE TABLE IF NOT EXISTS Evento (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
@@ -51,7 +65,8 @@ CREATE TABLE IF NOT EXISTS Evento (
     data_inicio DATE NOT NULL,
     data_fim DATE NOT NULL
 );
---Tabela Programação do Evento
+
+-- Tabela Programação do Evento
 CREATE TABLE IF NOT EXISTS ProgramacaoEvento (
     id INT AUTO_INCREMENT PRIMARY KEY,
     evento_id INT NOT NULL,
@@ -63,7 +78,8 @@ CREATE TABLE IF NOT EXISTS ProgramacaoEvento (
     descricao TEXT,
     FOREIGN KEY (evento_id) REFERENCES Evento(id) ON DELETE CASCADE
 );
---Tabela Participação do Evento
+
+-- Tabela Participação do Evento
 CREATE TABLE IF NOT EXISTS ParticipacaoEvento (
     id INT AUTO_INCREMENT PRIMARY KEY,
     evento_id INT NOT NULL,
@@ -72,4 +88,3 @@ CREATE TABLE IF NOT EXISTS ParticipacaoEvento (
     FOREIGN KEY (evento_id) REFERENCES Evento(id) ON DELETE CASCADE,
     FOREIGN KEY (matricula) REFERENCES Usuario(matricula) ON DELETE CASCADE
 );
-
