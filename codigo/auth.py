@@ -3,15 +3,11 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
-
-from database import SessionLocal  # sessionmaker criado no seu database.py
-from models import Usuario  # importa o modelo ORM
-
 import functools
-import os
-from utils import gerar_cod_verificacao, enviar_email
-from sqlalchemy import select
+import os   
+from .utils import gerar_cod_verificacao, enviar_email
+from .models import Usuario
+from . import db  # objeto SQLAlchemy do flask_sqlalchemy
 
 bp_auth = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -35,10 +31,8 @@ def register():
             error = 'Senha necessária.'
 
         if error is None:
-            session_db = SessionLocal()
             try:
-                # Verificar duplicatas usando ORM
-                existing_user = session_db.query(Usuario).filter(
+                existing_user = db.session.query(Usuario).filter(
                     (Usuario.matricula == matricula) |
                     (Usuario.nome == nome) |
                     (Usuario.email == email)
@@ -67,8 +61,6 @@ def register():
 
             except Exception as e:
                 error = f"Erro ao verificar dados: {str(e)}"
-            finally:
-                session_db.close()
 
         flash(error)
 
@@ -82,10 +74,9 @@ def login():
         senha = request.form['senha']
 
         error = None
-        session_db = SessionLocal()
 
         try:
-            user = session_db.query(Usuario).filter_by(matricula=matricula).first()
+            user = db.session.query(Usuario).filter_by(matricula=matricula).first()
 
             if user is None:
                 error = 'Matrícula não encontrada.'
@@ -99,8 +90,6 @@ def login():
 
         except Exception as e:
             error = f"Erro ao fazer login: {str(e)}"
-        finally:
-            session_db.close()
 
         flash(error)
 
@@ -126,9 +115,8 @@ def change_password():
             flash("A nova senha não pode ser igual a anterior ")
             return redirect(url_for('auth.change_password'))
 
-        session_db = SessionLocal()  
         try:
-            user = session_db.query(Usuario).filter_by(matricula=matricula).first()
+            user = db.session.query(Usuario).filter_by(matricula=matricula).first()
 
             if user is None:
                 flash("Usuário não encontrado.")
@@ -139,18 +127,17 @@ def change_password():
                 return redirect(url_for('auth.change_password'))
 
             user.senha = generate_password_hash(nova_senha)
-            session_db.commit()
+            db.session.commit()
+
             session.clear()
             flash("Senha alterada com sucesso.")
             return redirect(url_for('auth.login'))
 
         except Exception as e:
-            session_db.rollback()
+            db.session.rollback()
             flash(f"Erro ao alterar senha: {str(e)}")
             return redirect(url_for('auth.change_password'))
 
-        finally:
-            session_db.close()
 
     return render_template('auth/change_password.html')
 
@@ -175,7 +162,6 @@ def verificar_email_endpoint():
         codigo_esperado = session.get('codigo_verificacao')
     
         if codigo == codigo_esperado:
-            session_db = SessionLocal()
             try:
                 if contexto == 'cadastro':
                     usuario = Usuario(
@@ -184,8 +170,9 @@ def verificar_email_endpoint():
                         email=session['registro_temp']['email'],
                         senha=session['registro_temp']['senha']
                     )
-                    session_db.add(usuario)
-                    session_db.commit()
+                    db.session.add(usuario)
+                    db.session.commit()
+
                     flash("Usuário registrado com sucesso!")
                     session.pop('registro_temp', None)
                     session.pop('codigo_verificacao', None)
@@ -197,13 +184,11 @@ def verificar_email_endpoint():
                     return redirect(url_for('auth.reset_password'))
 
             except IntegrityError:
-                session_db.rollback()
+                db.session.rollback()
                 flash("Matrícula ou email já registrados.")
             except Exception as e:
-                session_db.rollback()
+                db.session.rollback()
                 flash(f"Erro: {e}")
-            finally:
-                session_db.close()
         else:
             flash("Código incorreto!")
 
@@ -218,9 +203,8 @@ def recover_password():
     if request.method == 'POST':
         email = request.form.get('email')  
 
-        session_db = SessionLocal()  
         try:
-            user = session_db.query(Usuario).filter_by(email=email).first()
+            user = db.session.query(Usuario).filter_by(email=email).first()
 
             if user is None:
                 flash("Não existe nenhum usuário com este e-mail.")
@@ -236,8 +220,6 @@ def recover_password():
         except Exception as e:
             flash(f"Erro ao tentar recuperar conta: {str(e)}")
             return redirect(url_for('auth.recover_password'))
-        finally:
-            session_db.close()
     
     return render_template('auth/recover_password.html')
                         
@@ -257,25 +239,22 @@ def reset_password():
             flash("As senhas não coincidem.")
             return redirect(url_for('auth.reset_password'))
 
-        session_db = SessionLocal()
         try:
-            user = session_db.query(Usuario).filter_by(email=email).first()
+            user = db.session.query(Usuario).filter_by(email=email).first()
             if not user:
                 flash("Usuário não encontrado.")
                 return redirect(url_for('auth.login'))
 
             user.senha = generate_password_hash(nova_senha)
-            session_db.commit()
+            db.session.commit()
+
             session.clear()
             flash("Senha alterada com sucesso.")
             return redirect(url_for('auth.login'))
 
         except Exception as e:
-            session_db.rollback()
+            db.session.rollback()
             flash(f"Erro ao atualizar senha: {e}")
-
-        finally:
-            session_db.close()
 
         return redirect(url_for('auth.reset_password'))
 
@@ -289,13 +268,10 @@ def load_logged_in_user():
     if matricula is None:
         g.user = None
     else:
-        session_db = SessionLocal()
         try:
-            g.user = session_db.query(Usuario).filter_by(matricula=matricula).first()
+            g.user = db.session.query(Usuario).filter_by(matricula=matricula).first()
         except:
             g.user = None
-        finally:
-            session_db.close()
 
 
 @bp_auth.route('/logout')

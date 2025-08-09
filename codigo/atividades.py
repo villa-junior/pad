@@ -1,13 +1,13 @@
 import datetime
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import Select, text
-from database import SessionLocal
-from models import Atividade, TipoAtividade, FormaAplicacao, LocalProva, Turma
+from .models import Atividade, TipoAtividade, FormaAplicacao, LocalProva, Turma
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 )
+from . import db
+from .auth import login_required
+from sqlalchemy import func, cast, Date
 
-from auth import login_required
 bp_atividades = Blueprint('atividades', __name__, url_prefix='/atividades')
 
 def insert_atividade(
@@ -26,8 +26,10 @@ def insert_atividade(
     avaliativa: bool,
     turma: Turma
 ):
-    session = SessionLocal()
     try:
+        if verificar_atividade_dia(data_hora_realizacao, turma):
+            return "Já existem 2 atividades cadastradas para essa turma nesse dia."
+
         nova_atividade = Atividade(
             materia=materia,
             assunto=assunto,
@@ -45,66 +47,52 @@ def insert_atividade(
             turma=turma.value
         )
 
-        if verificar_atividade_dia(data_hora_realizacao, turma):
-            return "Já existem 2 atividades cadastradas para essa turma nesse dia."
-        session.add(nova_atividade)
-        session.flush() 
-        session.commit()
+        db.session.add(nova_atividade)
+        db.session.flush()
+        db.session.commit()
         return "Atividade cadastrada com sucesso"
-    except SQLAlchemyError as e:
-        session.rollback()
+    except Exception as e:
+        db.session.rollback()
         raise Exception(f"Erro ao cadastrar atividade: {str(e)}")
-    finally:
-        session.close()
 
-# TODO: retirar essas consultas sql daqui, fazer tudo em ORM
-def get_atividades():
-    session = SessionLocal()
+def get_atividades() -> list[Atividade]:
     try:
-        result = session.execute(text("SELECT * FROM Atividade ORDER BY data_hora_realizacao ASC"))
-        return result.mappings().all()
+        atividades = db.session.query(Atividade).order_by(Atividade.data_hora_realizacao.asc()).all()
+        if not atividades:
+            raise Exception("Atividade não encontrada")
+        return atividades
     except Exception as e:
         raise Exception(f"Erro ao buscar atividades: {e}")
-    finally:
-        session.close()
 
-def verificar_atividade(id: int):
-    session = SessionLocal()
+def verificar_atividade(id: int) -> str:
     try:
-        atividade = session.execute(text("SELECT matricula FROM Atividade WHERE id = :id"), {'id': id}).fetchone()
-        matricula = atividade[0]
+        atividade = db.session.query(Atividade).filter_by(id=id).first()
         if not atividade:
             raise Exception("Atividade não encontrada")
-        return matricula
-    except SQLAlchemyError as e:
+        return atividade.matricula
+    except Exception as e: 
         raise Exception(f"Erro ao verificar atividade: {str(e)}")
-    finally:
-        session.close()
 
 def verificar_atividade_dia(data_hora_realizacao, turma: Turma) -> bool:
-    session = SessionLocal()
     try:
-        atividades = session.execute(text("SELECT * FROM Atividade WHERE DATE(data_hora_realizacao) = DATE(:data_hora_realizacao) AND turma = :turma"),
-                                     {'data_hora_realizacao': data_hora_realizacao, 'turma': turma.value}).fetchall()
-        if len(atividades) >= 2:
-            return True
-        
-        return False
-    except SQLAlchemyError as e:
+        atividades = db.session.query(Atividade).filter(
+            cast(Atividade.data_hora_realizacao, Date) == data_hora_realizacao.date(),
+            Atividade.turma == turma.value
+        ).all()
+        return len(atividades) >= 2
+    except Exception as e:
         raise Exception(f"Erro ao verificar atividade: {str(e)}")
-    finally:
-        session.close()
 
 def delete_atividade(id: int):
-    session = SessionLocal()
     try:
-        result = session.execute(text("DELETE FROM Atividade WHERE id = :id"), {'id': id})
-        session.commit()
-    except SQLAlchemyError as e:
-        session.rollback()
+        atividade = db.session.query(Atividade).filter_by(id=id).first()
+        if not atividade:
+            raise Exception("Atividade não encontrada para exclusão")
+        db.session.delete(atividade)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
         raise Exception(f"Erro ao excluir atividade: {str(e)}")
-    finally:
-        session.close()
 
 
 # ENDPOINTS DE ATIVIDADES
@@ -115,7 +103,7 @@ def cadastrar_atividade():
     if request.method == 'POST':
         materia = request.form.get('materia')
         assunto = request.form.get('assunto')
-        data_hora_realizacao = request.form.get('data_hora_realizacao')
+        data_hora_realizacao_str = request.form.get('data_hora_realizacao')
         tipo_atividade = TipoAtividade(request.form.get("tipo_atividade"))
         forma_aplicacao = FormaAplicacao(request.form.get("forma_aplicacao"))
         links_material = request.form.get('links_material')
@@ -127,28 +115,32 @@ def cadastrar_atividade():
         avaliativa = bool(request.form.get('avaliativa'))
         turma = Turma(request.form.get('turma'))
         error = None
-        if error is not None: # captura erros do backend e adiciona na interface
-            flash(error)
 
-        # Verificação básica de campos obrigatórios
         if not g.user:
-            error = 'Log in não realizado'
+            error = 'Login não realizado'
 
-        # esse g.user representa o usuário logado e registrado nos cookies
+        # Converter data_hora_realizacao para datetime
+        try:
+            data_hora_realizacao = datetime.datetime.fromisoformat(data_hora_realizacao_str)
+        except Exception:
+            error = "Data e hora inválidas."
 
-        if not materia or not assunto or not data_hora_realizacao or not g.user["matricula"]:
+        if not materia or not assunto or not data_hora_realizacao_str or not g.user or not g.user.matricula:
             error = "Preencha todos os campos obrigatórios."
+
+        if error is not None:
+            flash(error)
         else:
             try:
-                flash(insert_atividade(
-                    materia, assunto, data_hora_realizacao, g.user["matricula"], tipo_atividade, forma_aplicacao,
+                msg = insert_atividade(
+                    materia, assunto, data_hora_realizacao, g.user.matricula, tipo_atividade, forma_aplicacao,
                     links_material, permite_consulta, pontuacao, local_prova, materiais_necessarios,
                     outros_materiais, avaliativa, turma
-                ))
-                error = "Atividade cadastrada com sucesso."
+                )
+                flash(msg)
                 return redirect(url_for('home'))  # ou outra rota pós-cadastro
             except Exception as e:
-                error = f"Erro ao cadastrar atividade: {str(e)}" 
+                flash(f"Erro ao cadastrar atividade: {str(e)}") 
 
     return render_template("form_atividades.html")
 
@@ -168,7 +160,7 @@ def excluir_atividade(id):
     try:
         if not g.user:
             return jsonify({"error": "Usuário não autenticado."}), 401
-        if verificar_atividade(id) != g.user["matricula"]:
+        if verificar_atividade(id) != g.user.matricula:
             return jsonify({"error": "Você não tem permissão para excluir esta atividade."}), 403
         
         delete_atividade(id)
