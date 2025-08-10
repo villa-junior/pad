@@ -7,6 +7,7 @@ from flask import (
 from . import db
 from .auth import login_required
 from sqlalchemy import func, cast, Date
+import enum
 
 bp_atividades = Blueprint('atividades', __name__, url_prefix='/atividades')
 
@@ -35,16 +36,16 @@ def insert_atividade(
             assunto=assunto,
             data_hora_realizacao=data_hora_realizacao,
             matricula=matricula,
-            tipo_atividade=tipo_atividade.value,
-            forma_aplicacao=forma_aplicacao.value,
+            tipo_atividade=tipo_atividade.name,
+            forma_aplicacao=forma_aplicacao.name,
             links_material=links_material,
             permite_consulta=permite_consulta,
             pontuacao=pontuacao,
-            local_prova=local_prova.value,
+            local_prova=local_prova.name,
             materiais_necessarios=materiais_necessarios,
             outros_materiais=outros_materiais,
             avaliativa=avaliativa,
-            turma=turma.value
+            turma=turma.name
         )
 
         db.session.add(nova_atividade)
@@ -55,12 +56,22 @@ def insert_atividade(
         db.session.rollback()
         raise Exception(f"Erro ao cadastrar atividade: {str(e)}")
 
-def get_atividades() -> list[Atividade]:
+# NOTE: existem bibliotecas prontas para filtrar dados de envio (ex: pydantic)
+# enviar dados no formato de models pode ocasionar enormes problemas e criar códigos
+# complexos quando o tipo de dados das tabelas é complexo (nesse caso enums)
+def get_atividades() -> list[dict]:
     try:
         atividades = db.session.query(Atividade).order_by(Atividade.data_hora_realizacao.asc()).all()
         if not atividades:
             raise Exception("Atividade não encontrada")
-        return atividades
+
+        return [
+            { # corrigindo exibição para filtrar dados do enum
+                coluna: (getattr(a, coluna).value if isinstance(getattr(a, coluna), enum.Enum) else getattr(a, coluna))
+                for coluna in a.__table__.columns.keys()
+            }
+            for a in atividades
+        ]
     except Exception as e:
         raise Exception(f"Erro ao buscar atividades: {e}")
 
@@ -103,7 +114,7 @@ def cadastrar_atividade():
     if request.method == 'POST':
         materia = request.form.get('materia')
         assunto = request.form.get('assunto')
-        data_hora_realizacao_str = request.form.get('data_hora_realizacao')
+        data_hora_realizacao_str = request.form.get('data_hora_realizacao') # tá no padrão US. 12am, tem
         tipo_atividade = TipoAtividade(request.form.get("tipo_atividade"))
         forma_aplicacao = FormaAplicacao(request.form.get("forma_aplicacao"))
         links_material = request.form.get('links_material')
