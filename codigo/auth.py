@@ -47,7 +47,9 @@ def register():
                         error = "Email já registrado."
                 else:
                     codigo_gerado = gerar_cod_verificacao()
-                    enviar_email(codigo=codigo_gerado, destinatario=email, subject="Verificação de Email")
+                    # gerando a mensagem do email
+                    messagem = f"Seu codigo é {codigo_gerado}"
+                    enviar_email(destinatario=email, subject="Verificação de Email", message=messagem)
 
                     session['registro_temp'] = {
                         'matricula': matricula,
@@ -211,7 +213,10 @@ def recover_password():
                 return redirect(url_for('auth.recover_password'))
             
             codigo_gerado = gerar_cod_verificacao()
-            enviar_email(codigo=codigo_gerado, destinatario=email, subject="Verificação de Email")
+            # gerando a mensagem do email
+            messagem = f"Seu codigo é {codigo_gerado}"
+
+            enviar_email(destinatario=email, subject="Verificação de Email", message=messagem)
         
             session['codigo_verificacao'] = codigo_gerado
             session['recuperacao_senha'] = email

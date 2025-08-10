@@ -9,9 +9,9 @@ load_dotenv()
 EMAIL = os.getenv("EMAIL")
 SENHA_APP = os.getenv("SENHA_APP")
 
-def enviar_email(codigo:str,destinatario:str,subject:str):
-    message = MIMEText(f'Seu código é:' \
-            f'{codigo}')
+# método de email generico
+def enviar_email(destinatario:str,subject:str,message:str):
+    message = MIMEText(message) # transforma str em objeto para o email
     message['From'] = EMAIL
     message['To'] = destinatario
     message['Subject'] = subject
