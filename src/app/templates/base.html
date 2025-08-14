@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block titulo %}[...] - PAD IFBA{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header>
+    <h1>{% block sub_titulo %}PAD{% endblock %}</h1>
+    <div class="auth-links">
+        {% if g.user %}
+			<a href="/">Página inicial</a>
+			<a href="/reclamar">Reclamação</a>
+			<a href="/forum">Fórum</a>
+			<a href="/atividades">Atividades</a>
+			
+			<span>
+			{% set partes_nome = g.user['nome'].split() %}
+			{% if partes_nome|length >= 2%}
+				{{partes_nome[0]}} {{partes_nome[-1]}}
+			{% else %}
+				{{g.user['nome']}}
+			{% endif %}
+			</span>
+			
+			<a href="/auth/logout">Sair</a>
+        {% else %}
+            <a href="/auth/login">Login</a>
+            <a href="/auth/register">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+
+<main>
+	{% block conteudo %}{% endblock %}
+</main>
+
+<footer>
+    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
+    <p>PAD - Plataforma de Atendimento Discente</p>
+    <p>Projeto produzido na disciplina PPA 2025</p>
+    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
+</footer>
+
+</body>
+</html>

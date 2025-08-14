@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block titulo %}PAD{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header>
+{% block header %}
+    <h1>PAD - Trocar Senha</h1>
+    <div class="auth-links">
+        <a href="/">Início</a>
+        <a href="/logout">Sair</a>
+    </div>
+{% endblock %}
+</header>
+
+<main>
+	{% block conteudo %}{% endblock %}
+</main>
+
+<footer>
+    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
+    <p>PAD - Plataforma de Atendimento Discente</p>
+    <p>Projeto produzido na disciplina PPA 2025</p>
+    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
+</footer>
+
+</body>
+</html>

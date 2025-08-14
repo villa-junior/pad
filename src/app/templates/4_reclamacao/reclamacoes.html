@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block titulo %}Reclamações - PAD IFBA{% endblock %}
+
+{% block sub_titulo %}PAD - Fale Conosco{% endblock %}
+
+{% block conteudo %}
+    <h2>Reclamações</h2>
+
+    {% if reclamacoes %}
+        <div class="reclamacoes">
+		<nav>
+            <ul>
+                <li><a href="/reclamar">Fazer reclamação</a></li>
+            </ul>
+        </nav>
+            {% for r in reclamacoes %}
+                <div class="reclamacao">
+                    <h3>{{ r['topico_nome'] }}</h3>
+                    <p>{{ r['descricao'] }}</p>
+                    <small>Data: {{ r['data_reclamacao'] }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Nenhuma reclamação.</p>
+    {% endif %}
+{% endblock %}

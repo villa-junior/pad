@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block titulo %}Atividades - PAD IFBA{% endblock %}
+
+{% block sub_titulo %}PAD - Atividades{% endblock %}
+
+{% block conteudo %}
+        <div>
+    <label for="filtroTurma"><strong>Filtrar por turma:</strong></label>
+    <select id="filtroTurma">
+        <option value="todas">Todas</option>
+        {% set turmas = atividades | map(attribute='turma') | list | unique %}
+        {% for turma in turmas %}
+            <option value="{{ turma }}">{{ turma }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+        {% if atividades %}
+            <h2>Atividades Cadastradas</h2>
+            <div class="reclamacoes">
+                {% for atividade in atividades %}
+                <div class="atividade-row">
+    <p><strong>Matéria:</strong> {{ atividade.materia }}</p>
+    <p><strong>Assunto:</strong> {{ atividade.assunto }}</p>
+    <p class="turma"><strong>Turma:</strong> {{ atividade.turma }}</p>
+    <p><strong>Data e Hora:</strong> {{ atividade.data_hora_realizacao }}</p>
+    <p><strong>Local:</strong> {{ atividade.local_prova }}</p>
+
+    <button class="btn-excluir" data-id="{{ atividade.id }}">Excluir</button>
+</div>
+<div class="detalhes-row">
+    <details>
+        <summary><strong>Ver detalhes</strong></summary>
+        <div>
+            <p><strong>Professor:</strong> {{ atividade.docente_id }}</p>
+            <p><strong>Pontuação:</strong> {{ atividade.pontuacao }} pontos</p>
+            <p><strong>Tipo de Atividade:</strong> {{ atividade.tipo_atividade }}</p>
+            <p><strong>Materiais:</strong> {{ atividade.materiais_necessarios }}</p>
+        </div>
+    </details>
+</div>
+
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="flash">Nenhuma atividade cadastrada no momento.</p>
+        {% endif %}
+		
+    <script src="{{ url_for('static', filename='js/atividades.js') }}"></script>
+	<div class="auth-links">
+           <a href="{{ url_for('formulario') }}">Cadastrar Nova</a>
+    </div>
+{% endblock %}

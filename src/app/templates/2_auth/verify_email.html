@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+{% extends "2_auth/base_auth.html" %}
+
+{% block titulo %}Verificação de Email{% endblock %}
+
+{% block header %}
+    <h1>PAD - Verificação de Email</h1>
+    <div class="auth-links">
+        <a href="/auth/login">Login</a>
+        <a href="/auth/register">Sign In</a>
+    </div>
+{% endblock %}
+
+{% block conteudo %}
+    {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+    {% endfor %}
+
+    <h2>Verificação de E-mail</h2>
+    <p>Um código foi enviado para: <strong>{{ email }}</strong></p>
+    
+    <form method="post">
+        <input type="text" name="codigo" placeholder="Código de 6 dígitos" maxlength="6" required>
+        <button type="submit">Verificar</button>
+    </form>
+{% endblock %}

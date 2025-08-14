@@ -67,7 +67,7 @@ As atividades são armazenadas em um banco de dados relacional e podem ser consu
 ## Como executar
 
 ```bash
-python main.py
+python pad.py
 ```
 
 - Acesse em: [http://localhost:5000](http://localhost:5000)

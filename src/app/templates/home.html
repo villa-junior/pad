@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block titulo %}Página Inicial - PAD IFBA{% endblock %}
+
+{% block sub_titulo %}PAD IFBA{% endblock %}
+
+{% block conteudo %}
+	{% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+    {% endfor %}
+    
+	<h2>Fale Conosco</h2>
+    <nav>
+        <ul>
+            <li><a href="/reclamar">Fazer uma Reclamação</a></li>
+            <li><a href="/reclamacoes">Ver Reclamações</a></li>
+			<li><a href="/forum">Acessar Fórum</a></li>
+        </ul>
+    </nav>
+
+    <h2>Cadastro de Atividades</h2>
+    <nav>
+        <ul>
+            <li><a href="/formulario">Cadastrar Atividade</a></li>
+            <li><a href="/atividades">Ver atividades</a></li>
+        </ul>
+    </nav>
+{% endblock %}

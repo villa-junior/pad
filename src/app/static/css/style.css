@@ -1,0 +1,245 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    font-weight: normal;
+}
+
+header a {
+	font-size: 1.3em;
+}
+
+span{
+	font-size: 1.3em;
+}
+
+.auth-links {
+    display: flex;
+    align-items: center;
+}
+
+.auth-links a, .auth-links span {
+    color: #ecf0f1;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+.form-link {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.form-link a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.form-link a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 40px;
+	padding-top: 20px;
+	padding-bottom: 25px;
+    min-width: 800px;
+    margin: auto;
+	margin-top: 15px;
+	margin-bottom: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.forum-container {
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+.post-card {
+	background-color: #f9f9f9;
+	border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+		
+.post-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 10px;
+    color: #666;
+    font-size: 0.9em;    
+}
+
+.post-content {
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.post-author {
+    font-weight: bold;
+    color: #333;
+}
+
+.post-title a{
+    color: #333;
+	text-decoration: none;
+}
+
+.post-date {
+	color: #888;
+}
+
+h2 {
+	margin-top: 0.5px;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+nav ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+nav li {
+    margin-bottom: 12px;
+	font-size: 1.0em;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+nav a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+}
+
+button {
+    padding: 12px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #34495e;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Lista de reclamações */
+.reclamacoes {
+    margin-top: 20px;
+}
+
+.reclamacao {
+    background: #fafafa;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.flash { margin: 1em 0; padding: 1em; background: #cae6f6; border: 1px solid #377ba8; }
+/* footer estilizado */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.9em;
+    margin-top: auto;
+}
+
+footer a {
+    color: #ffcc00;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.atividade-row {
+    position: relative;
+    background: #fafafa;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.detalhes-row {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.btn-excluir {
+    display:none; 
+    position:absolute; 
+    right:10px; 
+    top:10px; 
+    background:#e74c3c; 
+    color:#fff; 
+    border:none; 
+    padding:5px 10px; 
+    border-radius:3px; 
+    cursor:pointer;
+}
