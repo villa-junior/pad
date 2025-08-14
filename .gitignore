@@ -1,4 +1,4 @@
 myenv/
-src/__pycache__/
+codigo_est_21/app/__pycache__/
 .env
 .venv
