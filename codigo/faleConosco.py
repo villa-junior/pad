@@ -1,41 +1,80 @@
 from datetime import datetime
-from sqlalchemy import create_engine, Table, text, MetaData,insert
-from database import engine,SessionLocal
+from flask import (
+    Blueprint, flash, g, redirect, render_template, request, url_for
+)
 
-metadata = MetaData()
-reclamacoes_table = Table('Reclamacao', metadata, autoload_with=engine)
-# acredito que seria mais coerente com o uso do sqlalchemy ter um models.py
-# com classes que utilizam apenas ORM para interagir com a db
+from .auth import login_required
+from .models import Reclamacao
+from . import db  # importa objeto db do flask
 
-# uma boa prática seria criar um Enum para topico
+bp_fale_conosco = Blueprint('faleConosco', __name__, url_prefix='/faleConosco')
 
 def insert_reclamacao(matricula: int, topico: str, descricao: str):
-    session = SessionLocal() # a abordagem com o session é mais comum no uso do flask
-    data_atual = datetime.now().strftime("%Y-%m-%d %H:%M") # correcao de data
-    
-    try:
-        stmt = insert(reclamacoes_table).values(
-                    matricula=matricula,
-                    topico=topico,
-                    descricao=descricao,
-                    data_reclamacao=data_atual
-                )
-        session.execute(stmt)
-        session.commit()
-        return "Atividade cadastrada com sucesso"
-    except Exception as e: # exceção para ser capturada na main
-        session.rollback() # caso dê alguma merda a db volta atrás
-        raise Exception(f"Erro ao cadastrar atividade: {e}")
-    finally:
-        session.close()
+    data_atual = datetime.now().strftime("%Y-%m-%d %H:%M")
 
+    try:
+        nova_reclamacao = Reclamacao(
+            matricula=matricula,
+            topico=topico,
+            descricao=descricao,
+            data_reclamacao=data_atual
+        )
+        db.session.add(nova_reclamacao)
+        db.session.commit()
+        return "Reclamação adicionada com sucesso"
+    except Exception as e:
+        db.session.rollback()
+        raise Exception(f"Erro ao enviar reclamação: {e}")
 
 def get_reclamacao():
-    session = SessionLocal()
     try:
-        result = session.execute(text("SELECT * FROM Reclamacao"))
-        return result.mappings().all()
-    except Exception as e: # exceção para ser capturada na main
-        raise Exception(f"Erro ao buscar atividades: {e}")
-    finally:
-        session.close()
+        reclamacoes = db.session.query(Reclamacao).all()
+        return reclamacoes
+    except Exception as e:
+        raise Exception(f"Erro ao buscar reclamações: {e}")
+
+
+# ENDPOINTS PARA FALECONOSCO
+
+@bp_fale_conosco.route("/reclamar", methods=('GET', 'POST'))
+@login_required
+def post_reclamacoes_endpoint():
+    if request.method == 'POST':  # substituir pelo uso do FlaskWTF
+        topico = request.form.get("topico")
+        descricao = request.form.get("descricao")
+
+        error = None
+
+        if not g.user:  # g é variável global do Flask
+            error = 'Log in não realizado'
+        elif not topico:
+            error = 'Tópico é obrigatório.'
+        elif not descricao:
+            error = 'Descrição é obrigatória.'
+
+        if error is not None:
+            flash(error)
+        else:
+            try:
+                insert_reclamacao(
+                    matricula=g.user.matricula,  # g.user como objeto
+                    topico=topico,
+                    descricao=descricao
+                )
+                flash("Reclamação enviada com sucesso.")
+                return redirect(url_for("home"))  # ou outra rota após sucesso
+            except Exception as e:
+                flash(f"Erro ao enviar reclamação: {str(e)}")
+
+    return render_template("form_reclamar.html")
+
+@bp_fale_conosco.route("/reclamacoes")
+@login_required
+def get_reclamacoes_endpoint():
+    try:
+        reclamacoes_top = get_reclamacao()
+    except Exception as e:
+        flash(f"Erro ao buscar reclamações: {str(e)}")
+        reclamacoes_top = []
+
+    return render_template("reclamacoes.html", reclamacoes=reclamacoes_top)
