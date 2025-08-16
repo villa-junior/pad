@@ -6,27 +6,26 @@
 
 {% block conteudo %}
 	<div class="forum-container">
-		<h2>{{ post.titulo }}</h2>
+		<h2 class="post-card-title">{{ post.titulo }}</h2>
 
 		<div class="post-card">
-            <div class="post-header">
-                <span class="post-author">
-				{% if post.usuario %}
-				{% set partes_nome = post.usuario.nome.split() %}
-					{% if partes_nome|length >= 2%}
-						{{partes_nome[0]}} {{partes_nome[-1]}}
-				{% else %}
-					{{ post.matricula }}
+			<div class="post-card-header">
+				<span class="author-date">
+					{% if post.usuario %}
+						{% set partes_nome = post.usuario.nome.split() %}
+						{% if partes_nome|length >= 2 %}
+							{{ partes_nome[0] }} {{ partes_nome[-1] }}
+						{% else %}
+							{{ post.matricula }}
+						{% endif %}
 					{% endif %}
-				{% endif %}
+					{{ post.data_post.strftime('%d/%m/%Y %H:%M') }}
 				</span>
+			</div>
 
-                <span class="post-date">{{ post.data_post.strftime('%d/%m/%Y %H:%M') }}</span>
-            </div>
-            <div class="post-content">
-                {{ post.descricao }}
-            </div>
-        </div>
-    </div>
-
+			<div class="post-card-content">
+				{{ post.descricao }}
+			</div>
+		</div>
+	</div>
 {% endblock %}

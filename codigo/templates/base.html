@@ -11,11 +11,7 @@
     <h1>{% block sub_titulo %}PAD{% endblock %}</h1>
     <div class="auth-links">
         {% if g.user %}
-            <a href="/auth/logout">Sair</a>
 			<a href="/">Página inicial</a>
-			<a href="/reclamar">Reclamação</a>
-			<a href="/forum">Fórum</a>
-			<a href="/atividades">Atividades</a>
 
 			<span>
 			{% set partes_nome = g.user['nome'].split() %}

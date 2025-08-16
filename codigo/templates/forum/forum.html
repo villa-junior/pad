@@ -7,7 +7,7 @@
 {% block conteudo %}	
 	<nav>
         <ul>
-			<li><a href="/criar_post">Criar postagem</a></li>
+			<li><a href="/forum/criar_post">Criar postagem</a></li>
         </ul>
     </nav>
 
@@ -31,7 +31,7 @@
                 <span class="post-date">{{ post.data_post.strftime('%d/%m/%Y %H:%M') }}</span>
             </div>
             <div class="post-title">
-				<a href="{{ url_for('post_forum', id=post.id_post) }}" class="post-link"><h3>{{ post.titulo }}</h3></a>
+				<a href="{{ url_for('forum.post_forum', id=post.id_post) }}" class="post-link"><h3>{{ post.titulo }}</h3></a>
             </div>
             <div class="post-content">
                 {{ post.descricao }}
@@ -40,7 +40,7 @@
         {% else %}
             <center>
             <h2>Nenhum post encontrado no fórum.</h2>
-            <a href="/criar_post">
+            <a href="/forum/criar_post">
             <img src="{{ url_for('static', filename='img/vazio.gif') }}">
             </a>
             </center>

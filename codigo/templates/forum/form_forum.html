@@ -6,7 +6,7 @@
 
 {% block conteudo %}
     <h2>Criar postagem</h2>
-    <form method="POST" action="{{ url_for('criar_post') }}">
+    <form method="POST" action="{{ url_for('forum.criar_post') }}">
         <div class="form-group">
             <label for="titulo">Título:</label>
             <input type="text" name="titulo" id="titulo" class="form-control" required>
