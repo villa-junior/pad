@@ -5,11 +5,6 @@
 {% block sub_titulo %}PAD - Fórum{% endblock %}
 
 {% block conteudo %}	
-	<nav>
-        <ul>
-			<li><a href="/forum/criar_post">Criar postagem</a></li>
-        </ul>
-    </nav>
 
 	<div class="forum-container">
 		<h2>Fórum</h2>
@@ -45,6 +40,11 @@
             </a>
             </center>
         {% endfor %}
+        <nav>
+            <ul>
+                <li><a href="/forum/criar_post">Novo Post</a></li>
+            </ul>
+        </nav>
     </div>
 
 {% endblock %}

@@ -66,7 +66,7 @@ def post_reclamacoes_endpoint():
             except Exception as e:
                 flash(f"Erro ao enviar reclamação: {str(e)}")
 
-    return render_template("form_reclamar.html")
+    return render_template("faleConosco/form_reclamar.html")
 
 @bp_fale_conosco.route("/reclamacoes")
 @login_required
@@ -77,4 +77,4 @@ def get_reclamacoes_endpoint():
         flash(f"Erro ao buscar reclamações: {str(e)}")
         reclamacoes_top = []
 
-    return render_template("reclamacoes.html", reclamacoes=reclamacoes_top)
+    return render_template("faleConosco/reclamacoes.html", reclamacoes=reclamacoes_top)

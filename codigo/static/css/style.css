@@ -92,13 +92,11 @@ main {
   transition: transform 0.2s ease, box-shadow 0.2s ease; /* animação */
 }
 
-/* Efeito hover */
 .post-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* Cabeçalho do card */
 .post-card-header {
   display: flex;
   justify-content: space-between;
@@ -107,12 +105,12 @@ main {
 }
 .post-card-header .author {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.8rem;
   color: #333;
 }
 
 .post-card-header .date {
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   color: #888;
 }
 

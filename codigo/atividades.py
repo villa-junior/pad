@@ -73,7 +73,7 @@ def get_atividades() -> list[dict]:
             for a in atividades
         ]
     except Exception as e:
-        raise Exception(f"Erro ao buscar atividades: {e}")
+        raise
 
 def verificar_atividade(id: int) -> str:
     try:
@@ -153,8 +153,9 @@ def cadastrar_atividade():
             except Exception as e:
                 flash(f"Erro ao cadastrar atividade: {str(e)}") 
 
-    return render_template("form_atividades.html")
+    return render_template("atividades/form_atividades.html")
 
+# TODO: aqui tem um bug que envia um flash sem necessidade quando nenhuma atividade é encontrada
 @bp_atividades.route("/visualizar")
 @login_required
 def atividades():
@@ -163,9 +164,9 @@ def atividades():
     except Exception as e:
         flash(f"Erro ao buscar atividades: {str(e)}")
         atividades = []
-    return render_template("atividades.html", atividades=atividades)
+    return render_template("atividades/atividades.html", atividades=atividades)
 
-@bp_atividades.route('/visualizar/<int:id>', methods=['DELETE'])
+@bp_atividades.route('/visualizar/<int:id>', methods=['DELETE']) # trocar esse endpoint
 @login_required
 def excluir_atividade(id):
     try:

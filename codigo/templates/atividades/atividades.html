@@ -42,11 +42,13 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="flash">Nenhuma atividade cadastrada no momento.</p>
+        <p>Nenhuma Atividade.</p>
     {% endif %}
 		
     <script src="{{ url_for('static', filename='js/atividades.js') }}"></script>
-	<div class="auth-links">
-           <a href="/atividades/cadastrar">Cadastrar Nova</a>
-    </div>
+	<nav>
+        <ul>
+            <li><a href="/atividades/cadastrar">Nova Atividade</a></li>
+        </ul>
+    </nav>
 {% endblock %}
