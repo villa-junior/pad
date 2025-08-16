@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block titulo %}Fórum - PAD IFBA{% endblock %}
+{% block sub_titulo %}PAD - Fórum{% endblock %}
+
+{% block conteudo %}
+    <h2>Criar postagem</h2>
+    <form method="POST" action="{{ url_for('criar_post') }}">
+        <div class="form-group">
+            <label for="titulo">Título:</label>
+            <input type="text" name="titulo" id="titulo" class="form-control" required>
+        </div>
+
+        <label for="descricao">Descrição:</label>
+        <textarea name="descricao" id="descricao" required></textarea>
+
+        <button type="submit" class="btn btn-primary">Criar post</button>
+    </form>
+	<nav>
+        <ul>
+			<li><a href="/forum">Ver Posts</a></li>
+        </ul>
+    </nav>
+
+{% endblock %}

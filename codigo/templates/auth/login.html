@@ -1,24 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends "auth/base_auth.html" %}
 
-<header>
-    <h1>PAD - Login</h1>
-    <div class="auth-links">
-        <a href="/auth/login">Log in</a>
-        <a href="/auth/register">Sign In</a>
-    </div>
-</header>
+{% block titulo %}Login{% endblock %}
+{% block sub_titulo %}PAD - Login{% endblock %}
 
-<main>
-    {% for message in get_flashed_messages() %}
-        <div class="flash">{{ message }}</div>
-    {% endfor %}
+{% block conteudo %}
     <h2>Log in</h2>
     <form action="{{ url_for('auth.login') }}" method="post">
         <input type="text" name="matricula" placeholder="Matrícula" required><br>
@@ -28,15 +14,4 @@
     <div class="form-link">
         <a href="{{ url_for('auth.recover_password') }}">Esqueceu a senha?</a>
     </div>
-        
-</main>
-
-<footer>
-    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
-    <p>PAD - Plataforma de Atendimento Discente</p>
-    <p>Projeto produzido na disciplina PPA 2025</p>
-    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
-</footer>
-
-</body>
-</html>
+{% endblock %}
