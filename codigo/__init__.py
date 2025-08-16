@@ -21,24 +21,23 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Importa blueprints e login_required (para usar nos endpoints abaixo)
-    from .auth import bp_auth, login_required
+    from . import models # garante que o alembic veja as tabelas
+
+    # Importa blueprints
+    from .auth import bp_auth
     from .faleConosco import bp_fale_conosco
     from .atividades import bp_atividades
+    from .forum import bp_forum
 
     # Registra blueprints
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_fale_conosco)
     app.register_blueprint(bp_atividades)
+    app.register_blueprint(bp_forum)
 
     # Rotas básicas
     @app.route("/")
     def home():
         return render_template("home.html")
-
-    @app.route("/forum")
-    @login_required
-    def forum():
-        return render_template("forum.html")
 
     return app
