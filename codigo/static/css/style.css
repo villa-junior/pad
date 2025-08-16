@@ -19,10 +19,18 @@ header {
     align-items: center;
 }
 
+header a {
+	font-size: 1.3em;
+}
+
 header h1 {
     margin: 0;
     font-size: 1.8em;
     font-weight: normal;
+}
+
+span{
+	font-size: 1.3em;
 }
 
 .auth-links {
@@ -58,14 +66,70 @@ header h1 {
 
 main {
     padding: 40px;
+    padding-top: 20px;
+	padding-bottom: 25px;
     min-width: 800px;
     margin: auto;
+    margin-top: 15px;
+	margin-bottom: 15px;
     background: white;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
+.forum-container {
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+.post-card {
+  background: #ffffff; /* fundo mais limpo */
+  border-radius: 12px; /* cantos mais suaves */
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* sombra mais elegante */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* animação */
+}
+
+.post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.post-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; 
+  margin-bottom: 12px;
+}
+.post-card-header .author {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.post-card-header .date {
+  font-size: 0.7rem;
+  color: #888;
+}
+
+.post-card-title {
+  font-size: 1.4rem; 
+  font-weight: 700; 
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.post-card-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+
 h2 {
+    margin-top: 0.5px;
     margin-bottom: 20px;
     font-size: 1.5em;
     border-bottom: 2px solid #ddd;
@@ -79,6 +143,8 @@ nav ul {
 
 nav li {
     margin-bottom: 12px;
+    font-size: 1.0em;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 nav a {

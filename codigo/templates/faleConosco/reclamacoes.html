@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-
 {% extends "base.html" %}
 
-{% block titulo %}Minhas Reclamações{% endblock %}
-
+{% block titulo %}Reclamações - PAD IFBA{% endblock %}
 {% block sub_titulo %}PAD - Fale Conosco{% endblock %}
 
 {% block conteudo %}
     <h2>Reclamações</h2>
-
     {% if reclamacoes %}
         <div class="reclamacoes">
             {% for r in reclamacoes %}
@@ -22,4 +19,9 @@
     {% else %}
         <p>Nenhuma reclamação.</p>
     {% endif %}
+    <nav>
+        <ul>
+            <li><a href="/faleConosco/reclamar">Ver Reclamações</a></li>
+        </ul>
+    </nav>
 {% endblock %}

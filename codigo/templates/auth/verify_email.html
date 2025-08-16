@@ -1,25 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Verificação de Email</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% block titulo %}Verificação Email{% endblock %}
+{% block sub_titulo %}PAD - Verificação Email{% endblock %}
 
-<header>
-    <h1>PAD - Verificação de Email</h1>
-    <div class="auth-links">
-        <a href="/auth/login">Login</a>
-        <a href="/auth/register">Sign In</a>
-    </div>
-</header>
-
-<main>
-    {% for message in get_flashed_messages() %}
-        <div class="flash">{{ message }}</div>
-    {% endfor %}
-
+{% block conteudo %}
     <h2>Verificação de E-mail</h2>
     <p>Um código foi enviado para: <strong>{{ email }}</strong></p>
     
@@ -27,14 +10,4 @@
         <input type="text" name="codigo" placeholder="Código de 6 dígitos" maxlength="6" required>
         <button type="submit">Verificar</button>
     </form>
-</main>
-
-<footer>
-    <p>Contato: <a href="mailto:faleconosco_pad@gmail.com">faleconosco_pad@gmail.com</a></p>
-    <p>PAD - Plataforma de Atendimento Discente</p>
-    <p>Projeto produzido na disciplina PPA 2025</p>
-    <p>&copy; 2025 Plataforma Acadêmica. <a href="#">Termos de Uso</a></p>
-</footer>
-
-</body>
-</html>
+{% endblock %}

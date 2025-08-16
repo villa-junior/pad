@@ -32,6 +32,14 @@ Este módulo oferece um canal de comunicação direto com a administração do s
 - Enviar mensagens, reclamações ou sugestões através de um formulário.
 - A administração pode visualizar e gerenciar as mensagens recebidas.
 
+### Fórum (`forum.py`)
+
+O módulo de fórum permite a postagem e visualização de posts num fórum comapartilhados
+
+- Enviar novos posts através de um formulário.
+- Editar e excluir seus posts existentes.
+- Visualizar uma lista de posts já cadastradas.
+
 ---
 
 ## Estrutura do Projeto e Modularização em Python
@@ -43,7 +51,7 @@ O projeto utiliza uma estrutura modular para organizar o código de forma clara 
 - **Reutilização:** Módulos podem ser reutilizados em outras partes da aplicação.
 - **Escalabilidade:** Novas funcionalidades podem ser adicionadas como novos módulos sem a necessidade de alterar o código existente.
 
-A estrutura de diretórios `codigo/` contém os principais módulos da aplicação, como `atividades.py`, `faleConosco.py`, `auth.py`, e `calendario.py`. O arquivo `main.py` é o ponto de entrada da aplicação, que importa e inicializa os outros módulos.
+A estrutura de diretórios `codigo/` contém os principais módulos da aplicação, como `atividades.py`, `faleConosco.py`, `auth.py`,`forum.py` e `calendario.py`. O arquivo `main.py` é o ponto de entrada da aplicação, que importa e inicializa os outros módulos.
 
 ---
 
@@ -58,13 +66,14 @@ O arquivo `models.py` define a estrutura das tabelas do banco de dados utilizand
 - `User`: Armazena as informações dos usuários.
 - `Atividade`: Armazena os detalhes das atividades cadastradas.
 - `Reclamacao`: Armazena as mensagens enviadas através do formulário "Fale Conosco".
-
+- `PostForum`: Armazena os posts enviados no fórum
 ### Comandos do Flask-Migrate
 
 Para criar as tabelas e gerenciar as migrações, utilize os seguintes comandos:
 
 1.  **Inicializar o ambiente de migração (apenas na primeira vez):**
     ```bash
+    cd codigo
     flask db init
     ```
 
@@ -130,8 +139,8 @@ Para criar as tabelas e gerenciar as migrações, utilize os seguintes comandos:
 Para iniciar a aplicação, execute o seguinte comando:
 
 ```bash
-python codigo/main.py # via arquivo
-flask run # via módulo flask
+python pad.py # via arquivo
+cd codigo && flask run # via módulo flask
 ```
 
 Acesse a aplicação em seu navegador no endereço [http://127.0.0.1:5000](http://127.0.0.1:5000).

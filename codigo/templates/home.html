@@ -7,15 +7,19 @@
 {% block sub_titulo %}PAD - Página Inicial{% endblock %}
 
 {% block conteudo %}
-{% for message in get_flashed_messages() %}
-        <div class="flash">{{ message }}</div>
-    {% endfor %}
+    <h2>Fórum</h2>
+    <nav>
+        <ul>
+            <li><a href="/forum">Acessar Fórum</a></li>
+            <li><a href="/forum/criar_post">Novo post</a></li>
+        </ul>
+    </nav>
+
     <h2>Fale Conosco</h2>
     <nav>
         <ul>
             <li><a href="/faleConosco/reclamar">Fazer uma Reclamação</a></li>
             <li><a href="/faleConosco/reclamacoes">Ver Reclamações</a></li>
-			<li><a href="/forum">Acessar Fórum</a></li>
         </ul>
     </nav>
 

@@ -1,14 +1,13 @@
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Boolean, Text, DECIMAL, ForeignKey, Enum as SAEnum
+    Column, Integer, String, DateTime, 
+    Boolean, Text, DECIMAL, ForeignKey, 
+    Enum as SAEnum
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
 
-from sqlalchemy.ext.declarative import declarative_base
-
-#TODO: implementar operacoes assincronas, na criacao da base e no crud
-Base = declarative_base()
+from . import db
 
 class TipoAtividade(enum.Enum):
     Prova_Objetiva = "Prova Objetiva"
@@ -53,8 +52,7 @@ class Turma(enum.Enum):
     Edificacoes_2B = "2º B Edificações"
     Edificacoes_3A = "3º A Edificações"
 
-
-class Usuario(Base):
+class Usuario(db.Model):
     __tablename__ = "Usuario"
 
     matricula = Column(String(20), primary_key=True) 
@@ -64,9 +62,9 @@ class Usuario(Base):
 
     atividades = relationship("Atividade", back_populates="usuario", cascade="all, delete-orphan")
     reclamacoes = relationship("Reclamacao", back_populates="usuario", cascade="all, delete-orphan")
+    posts_forum = relationship("PostForum", back_populates="usuario", cascade="all, delete-orphan")
 
-
-class Atividade(Base):
+class Atividade(db.Model):
     __tablename__ = "Atividade"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -88,7 +86,7 @@ class Atividade(Base):
 
     usuario = relationship("Usuario", back_populates="atividades")
 
-class Evento(Base):
+class Evento(db.Model):
     __tablename__ = "Evento"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -100,7 +98,7 @@ class Evento(Base):
     programacoes = relationship("ProgramacaoEvento", back_populates="evento", cascade="all, delete-orphan")
     participacoes = relationship("ParticipacaoEvento", back_populates="evento", cascade="all, delete-orphan")
 
-class Reclamacao(Base):
+class Reclamacao(db.Model):
     __tablename__ = "Reclamacao"
 
     id_reclamacao = Column(Integer, primary_key=True, autoincrement=True)
@@ -112,7 +110,7 @@ class Reclamacao(Base):
     usuario = relationship("Usuario", back_populates="reclamacoes")
 
 
-class ProgramacaoEvento(Base):
+class ProgramacaoEvento(db.Model):
     __tablename__ = "ProgramacaoEvento"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -125,8 +123,18 @@ class ProgramacaoEvento(Base):
 
     evento = relationship("Evento", back_populates="programacoes")
 
+class PostForum(db.Model):
+    __tablename__ = "PostForum"
 
-class ParticipacaoEvento(Base):
+    id_post = Column(Integer, primary_key=True, autoincrement=True)
+    matricula = Column(String(20), ForeignKey('Usuario.matricula', ondelete="CASCADE"), nullable=False)
+    titulo = Column(String(255), nullable=False)
+    descricao = Column(Text, nullable=False)
+    data_post = Column(DateTime, server_default=func.now(), nullable=False)
+
+    usuario = relationship("Usuario", back_populates="posts_forum")
+
+class ParticipacaoEvento(db.Model):
     __tablename__ = "ParticipacaoEvento"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

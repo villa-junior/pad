@@ -10,23 +10,8 @@
 <header>
     <h1>{% block sub_titulo %}PAD{% endblock %}</h1>
     <div class="auth-links">
-        {% if g.user %}
-			<a href="/">Página inicial</a>
-
-			<span>
-			{% set partes_nome = g.user['nome'].split() %}
-			{% if partes_nome|length >= 2%}
-				{{partes_nome[0]}} {{partes_nome[-1]}}
-			{% else %}
-				{{g.user['nome']}}
-			{% endif %}
-			</span>
-
-			<a href="/auth/logout">Sair</a>
-        {% else %}
-            <a href="/auth/login">Login</a>
-            <a href="/auth/register">Sign In</a>
-        {% endif %}
+        <a href="/">Home</a>
+        <a href="/auth/logout">Sair</a>
     </div>
 </header>
 

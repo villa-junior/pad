@@ -140,3 +140,7 @@ nextButton.addEventListener('click', () => {
     dataAtualGlobal.setMonth(dataAtualGlobal.getMonth() + 1);
     carregarCalendario(dataAtualGlobal);
 });
+
+// nota do gabriel, ese código  tá muito esquisito
+// valeria mais a pena pensar em algo mais integrado com 
+// python?

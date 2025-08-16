@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block titulo %}Fórum - PAD IFBA{% endblock %}
+{% block sub_titulo %}PAD - Fórum{% endblock %}
+
+{% block conteudo %}	
+
+	<div class="forum-container">
+		<h2>Fórum</h2>
+		{% for post in posts %}
+
+		<div class="post-card">
+            <div class="post-header">
+                <span class="post-author">
+				{% if post.usuario %}
+				{% set partes_nome = post.usuario.nome.split() %}
+					{% if partes_nome|length >= 2%}
+						{{partes_nome[0]}} {{partes_nome[-1]}}
+				{% else %}
+					{{ post.matricula }}
+					{% endif %}
+				{% endif %}
+				</span>
+
+                <span class="post-date">{{ post.data_post.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            <div class="post-title">
+				<a href="{{ url_for('forum.post_forum', id=post.id_post) }}" class="post-link"><h3>{{ post.titulo }}</h3></a>
+            </div>
+            <div class="post-content">
+                {{ post.descricao }}
+            </div>
+        </div>
+        {% else %}
+            <center>
+            <h2>Nenhum post encontrado no fórum.</h2>
+            <a href="/forum/criar_post">
+            <img src="{{ url_for('static', filename='img/vazio.gif') }}">
+            </a>
+            </center>
+        {% endfor %}
+        <nav>
+            <ul>
+                <li><a href="/forum/criar_post">Novo Post</a></li>
+            </ul>
+        </nav>
+    </div>
+
+{% endblock %}
